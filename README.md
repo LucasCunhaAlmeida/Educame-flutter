@@ -10,8 +10,8 @@ O projeto será desenvolvido inicialmente apenas para **Android**.
 
 ## Integrantes
 - Lucas Cunha Almeida - https://github.com/LucasCunhaAlmeida
-- Thiago Lima - [https://github.com/usuario2](https://github.com/ThiagoLima09)
-- Gabriel Fraga - [https://github.com/usuario3](https://github.com/Gabr1elFraga)
+- Thiago Lima - https://github.com/ThiagoLima09
+- Gabriel Fraga - https://github.com/Gabr1elFraga
 
 ## Tecnologias
 
