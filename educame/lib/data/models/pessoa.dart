@@ -4,7 +4,7 @@ class Pessoa {
   final String sobrenome;
   final DateTime dataNascimento;
   final String? genero;
-  final String cpf;
+  final String? cpf;
   final String? fotoPerfil;
   final int? enderecoId;
   final String email;
@@ -16,7 +16,7 @@ class Pessoa {
     required this.sobrenome,
     required this.dataNascimento,
     this.genero,
-    required this.cpf,
+    this.cpf,
     this.fotoPerfil,
     this.enderecoId,
     required this.email,
