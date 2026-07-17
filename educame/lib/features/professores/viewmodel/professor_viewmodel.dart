@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../../data/models/disciplina.dart';
-import '../../data/models/professor.dart';
-import '../../data/repositories/disciplina_repository.dart';
-import '../../data/repositories/professor_repository.dart';
+import '../../../data/models/disciplina.dart';
+import '../../../data/models/professor.dart';
+import '../../../data/repositories/disciplina_repository.dart';
+import '../../../data/repositories/professor_repository.dart';
 
 class ProfessorViewModel extends ChangeNotifier {
   final ProfessorRepository _professorRepository;
