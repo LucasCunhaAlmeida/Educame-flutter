@@ -24,6 +24,17 @@ class Pessoa {
   });
 
   String get nomeCompleto => '$nome $sobrenome'.trim();
+  String get nomeFormatado => _formatarNome(nome);
+  String get nomeCompletoFormatado => _formatarNome(nomeCompleto);
+
+  String _formatarNome(String valor) {
+    final nomeNormalizado = valor.trim().replaceAll(RegExp(r'\s+'), ' ');
+
+    return nomeNormalizado.toLowerCase().replaceAllMapped(
+      RegExp(r'(^|[\s-])([^\s-])'),
+      (match) => '${match.group(1)}${match.group(2)!.toUpperCase()}',
+    );
+  }
 
   String get iniciais {
     final partes = nomeCompleto
