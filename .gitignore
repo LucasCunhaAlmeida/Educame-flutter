@@ -6,6 +6,8 @@
 *.swp
 .buildlog/
 .history
+.idea/
+**/devtools_options.yaml
 
 
 

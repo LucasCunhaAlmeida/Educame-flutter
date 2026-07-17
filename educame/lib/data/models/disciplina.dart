@@ -4,14 +4,14 @@ class Disciplina {
   final String? descricao;
   final bool ativo;
 
-  Disciplina({
+  const Disciplina({
     this.id,
     required this.nome,
     this.descricao,
     this.ativo = true,
   });
 
-  Map<String, dynamic> toMap() {
+  Map<String, Object?> toMap() {
     return {
       'id': id,
       'nome': nome,
@@ -20,11 +20,11 @@ class Disciplina {
     };
   }
 
-  factory Disciplina.fromMap(Map<String, dynamic> map) {
+  factory Disciplina.fromMap(Map<String, Object?> map) {
     return Disciplina(
-      id: map['id'],
-      nome: map['nome'],
-      descricao: map['descricao'],
+      id: map['id'] as int?,
+      nome: map['nome'] as String,
+      descricao: map['descricao'] as String?,
       ativo: map['ativo'] == 1,
     );
   }

@@ -6,7 +6,7 @@ class Disponibilidade {
   final String status;
   final String? observacao;
 
-  Disponibilidade({
+  const Disponibilidade({
     this.id,
     required this.professorId,
     required this.inicio,
@@ -15,7 +15,10 @@ class Disponibilidade {
     this.observacao,
   });
 
-  Map<String, dynamic> toMap() {
+  bool get disponivel => status.toLowerCase() == 'disponivel';
+  Duration get duracao => fim.difference(inicio);
+
+  Map<String, Object?> toMap() {
     return {
       'id': id,
       'professor_id': professorId,
@@ -26,14 +29,14 @@ class Disponibilidade {
     };
   }
 
-  factory Disponibilidade.fromMap(Map<String, dynamic> map) {
+  factory Disponibilidade.fromMap(Map<String, Object?> map) {
     return Disponibilidade(
-      id: map['id'],
-      professorId: map['professor_id'],
-      inicio: DateTime.parse(map['inicio']),
-      fim: DateTime.parse(map['fim']),
-      status: map['status'],
-      observacao: map['observacao'],
+      id: map['id'] as int?,
+      professorId: map['professor_id'] as int,
+      inicio: DateTime.parse(map['inicio'] as String),
+      fim: DateTime.parse(map['fim'] as String),
+      status: map['status'] as String,
+      observacao: map['observacao'] as String?,
     );
   }
 }

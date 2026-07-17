@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import '../routes/app_router.dart';
 
 class AppBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -17,22 +20,26 @@ class AppBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final items = [
+    const items = [
       _NavItem(
         icon: Icons.home_outlined,
-        label: 'Minhas Aulas',
+        label: 'Início',
+        route: AppRoutes.home,
       ),
       _NavItem(
-        icon: Icons.calendar_today_outlined,
-        label: 'Agendar Aulas',
+        icon: Icons.search_outlined,
+        label: 'Professores',
+        route: AppRoutes.professores,
       ),
       _NavItem(
         icon: Icons.chat_bubble_outline,
         label: 'Mensagens',
+        route: AppRoutes.mensagens,
       ),
       _NavItem(
         icon: Icons.person_outline,
         label: 'Perfil',
+        route: AppRoutes.perfil,
       ),
     ];
 
@@ -40,12 +47,7 @@ class AppBottomNavBar extends StatelessWidget {
       height: 86,
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(
-          top: BorderSide(
-            color: borderColor,
-            width: 1,
-          ),
-        ),
+        border: Border(top: BorderSide(color: borderColor, width: 1)),
       ),
       child: Row(
         children: List.generate(items.length, (index) {
@@ -57,7 +59,9 @@ class AppBottomNavBar extends StatelessWidget {
               onTap: () {
                 if (onItemSelected != null) {
                   onItemSelected!(index);
+                  return;
                 }
+                context.go(item.route);
               },
               child: Column(
                 children: [
@@ -81,8 +85,9 @@ class AppBottomNavBar extends StatelessWidget {
                     style: TextStyle(
                       color: isSelected ? primaryBlue : gray,
                       fontSize: 13,
-                      fontWeight:
-                          isSelected ? FontWeight.w600 : FontWeight.w400,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w400,
                     ),
                   ),
                 ],
@@ -98,9 +103,11 @@ class AppBottomNavBar extends StatelessWidget {
 class _NavItem {
   final IconData icon;
   final String label;
+  final String route;
 
-  _NavItem({
+  const _NavItem({
     required this.icon,
     required this.label,
+    required this.route,
   });
 }

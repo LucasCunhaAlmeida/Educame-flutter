@@ -10,7 +10,7 @@ class Pessoa {
   final String email;
   final String senha;
 
-  Pessoa({
+  const Pessoa({
     this.id,
     required this.nome,
     required this.sobrenome,
@@ -23,7 +23,26 @@ class Pessoa {
     required this.senha,
   });
 
-  Map<String, dynamic> toMap() {
+  String get nomeCompleto => '$nome $sobrenome'.trim();
+
+  String get iniciais {
+    final partes = nomeCompleto
+        .split(RegExp(r'\s+'))
+        .where((parte) => parte.isNotEmpty)
+        .toList();
+
+    if (partes.isEmpty) {
+      return '?';
+    }
+    if (partes.length == 1) {
+      return partes.first.substring(0, 1).toUpperCase();
+    }
+
+    return '${partes.first.substring(0, 1)}${partes.last.substring(0, 1)}'
+        .toUpperCase();
+  }
+
+  Map<String, Object?> toMap() {
     return {
       'id': id,
       'nome': nome,
@@ -38,20 +57,18 @@ class Pessoa {
     };
   }
 
-  factory Pessoa.fromMap(Map<String, dynamic> map) {
+  factory Pessoa.fromMap(Map<String, Object?> map) {
     return Pessoa(
-      id: map['id'],
-      nome: map['nome'],
-      sobrenome: map['sobrenome'],
-      dataNascimento: DateTime.parse(
-        map['data_nascimento'],
-      ),
-      genero: map['genero'],
-      cpf: map['cpf'],
-      fotoPerfil: map['foto_perfil'],
-      enderecoId: map['endereco_id'],
-      email: map['email'],
-      senha: map['senha'],
+      id: map['id'] as int?,
+      nome: map['nome'] as String,
+      sobrenome: map['sobrenome'] as String,
+      dataNascimento: DateTime.parse(map['data_nascimento'] as String),
+      genero: map['genero'] as String?,
+      cpf: map['cpf'] as String,
+      fotoPerfil: map['foto_perfil'] as String?,
+      enderecoId: map['endereco_id'] as int?,
+      email: map['email'] as String,
+      senha: map['senha'] as String,
     );
   }
 }

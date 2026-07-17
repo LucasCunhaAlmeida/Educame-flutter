@@ -18,9 +18,7 @@ class MensagensPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      bottomNavigationBar: const AppBottomNavBar(
-        currentIndex: 2,
-      ),
+      bottomNavigationBar: const AppBottomNavBar(currentIndex: 2),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 34, 24, 28),
@@ -72,8 +70,7 @@ class MensagensPage extends StatelessWidget {
                 subject: 'Química',
                 subjectColor: purple,
                 subjectBackground: Color(0xFFF0E8FF),
-                message:
-                    'Perfeito! Qualquer dúvida, me chama\npor aqui.',
+                message: 'Perfeito! Qualquer dúvida, me chama\npor aqui.',
                 time: 'Terça-feira',
                 avatarText: 'J',
                 avatarBackground: Color(0xFFF1EAFE),
@@ -131,28 +128,31 @@ class _Header extends StatelessWidget {
     return const Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Mensagens',
-              style: TextStyle(
-                color: MensagensPage.darkBlue,
-                fontSize: 32,
-                fontWeight: FontWeight.w800,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Mensagens',
+                style: TextStyle(
+                  color: MensagensPage.darkBlue,
+                  fontSize: 32,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Converse com seus professores.',
-              style: TextStyle(
-                color: MensagensPage.textGray,
-                fontSize: 18,
-                fontWeight: FontWeight.w400,
+              SizedBox(height: 8),
+              Text(
+                'Converse com seus professores.',
+                style: TextStyle(
+                  color: MensagensPage.textGray,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+        SizedBox(width: 12),
         CircleAvatar(
           radius: 31,
           backgroundColor: MensagensPage.lightBlue,
@@ -180,26 +180,23 @@ class _SearchArea extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 22),
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border.all(
-                color: MensagensPage.borderGray,
-                width: 1.2,
-              ),
+              border: Border.all(color: MensagensPage.borderGray, width: 1.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Row(
               children: [
-                Icon(
-                  Icons.search,
-                  color: MensagensPage.textGray,
-                  size: 30,
-                ),
+                Icon(Icons.search, color: MensagensPage.textGray, size: 30),
                 SizedBox(width: 18),
-                Text(
-                  'Buscar conversa...',
-                  style: TextStyle(
-                    color: Color(0xFF8A96AD),
-                    fontSize: 18,
-                    fontWeight: FontWeight.w400,
+                Expanded(
+                  child: Text(
+                    'Buscar conversa...',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Color(0xFF8A96AD),
+                      fontSize: 18,
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                 ),
               ],
@@ -214,10 +211,7 @@ class _SearchArea extends StatelessWidget {
           height: 64,
           decoration: BoxDecoration(
             color: Colors.white,
-            border: Border.all(
-              color: MensagensPage.borderGray,
-              width: 1.2,
-            ),
+            border: Border.all(color: MensagensPage.borderGray, width: 1.2),
             shape: BoxShape.circle,
           ),
           child: const Icon(
@@ -259,17 +253,14 @@ class _ConversationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 158,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(
-          color: MensagensPage.borderGray,
-          width: 1.2,
-        ),
+        border: Border.all(color: MensagensPage.borderGray, width: 1.2),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _Avatar(
             text: avatarText,
@@ -277,21 +268,37 @@ class _ConversationCard extends StatelessWidget {
             online: online,
           ),
 
-          const SizedBox(width: 22),
+          const SizedBox(width: 14),
 
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: MensagensPage.darkBlue,
-                    fontSize: 21,
-                    fontWeight: FontWeight.w800,
-                  ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: MensagensPage.darkBlue,
+                          fontSize: 19,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      time,
+                      style: const TextStyle(
+                        color: MensagensPage.textGray,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
 
                 const SizedBox(height: 10),
@@ -315,46 +322,29 @@ class _ConversationCard extends StatelessWidget {
                     fontWeight: FontWeight.w400,
                   ),
                 ),
-              ],
-            ),
-          ),
-
-          const SizedBox(width: 12),
-
-          SizedBox(
-            width: 72,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  time,
-                  style: const TextStyle(
-                    color: MensagensPage.textGray,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-
-                const Spacer(),
-
-                if (unreadCount != null)
-                  Container(
-                    width: 34,
-                    height: 34,
-                    alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                      color: MensagensPage.primaryBlue,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      unreadCount!,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
+                if (unreadCount != null) ...[
+                  const SizedBox(height: 10),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Container(
+                      width: 28,
+                      height: 28,
+                      alignment: Alignment.center,
+                      decoration: const BoxDecoration(
+                        color: MensagensPage.primaryBlue,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        unreadCount!,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ),
+                ],
               ],
             ),
           ),
@@ -402,10 +392,7 @@ class _Avatar extends StatelessWidget {
             decoration: BoxDecoration(
               color: online ? const Color(0xFF2ECC4A) : const Color(0xFFC8D0DD),
               shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.white,
-                width: 3,
-              ),
+              border: Border.all(color: Colors.white, width: 3),
             ),
           ),
         ),
@@ -440,10 +427,7 @@ class _SubjectBadge extends StatelessWidget {
           Container(
             width: 9,
             height: 9,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           const SizedBox(width: 7),
           Text(
@@ -466,63 +450,61 @@ class _EmptyConversationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 110,
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MensagensPage.lightBlue,
         borderRadius: BorderRadius.circular(14),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const CircleAvatar(
-            radius: 34,
-            backgroundColor: Colors.white,
-            child: Icon(
-              Icons.chat_bubble,
-              color: MensagensPage.primaryBlue,
-              size: 36,
-            ),
-          ),
-
-          const SizedBox(width: 24),
-
-          const Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Não encontrou uma conversa?',
-                  style: TextStyle(
-                    color: MensagensPage.darkBlue,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                  ),
+          const Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                radius: 28,
+                backgroundColor: Colors.white,
+                child: Icon(
+                  Icons.chat_bubble,
+                  color: MensagensPage.primaryBlue,
+                  size: 30,
                 ),
-                SizedBox(height: 8),
-                Text(
-                  'Agende uma aula com um professor para\niniciar uma conversa.',
-                  style: TextStyle(
-                    color: MensagensPage.textGray,
-                    fontSize: 15,
-                    height: 1.35,
-                    fontWeight: FontWeight.w400,
-                  ),
+              ),
+              SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Não encontrou uma conversa?',
+                      style: TextStyle(
+                        color: MensagensPage.darkBlue,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Agende uma aula com um professor para iniciar uma conversa.',
+                      style: TextStyle(
+                        color: MensagensPage.textGray,
+                        fontSize: 15,
+                        height: 1.35,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-
+          const SizedBox(height: 14),
           Container(
             height: 46,
-            padding: const EdgeInsets.symmetric(horizontal: 22),
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border.all(
-                color: MensagensPage.primaryBlue,
-                width: 1.2,
-              ),
+              border: Border.all(color: MensagensPage.primaryBlue, width: 1.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Text(

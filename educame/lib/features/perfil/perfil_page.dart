@@ -15,9 +15,7 @@ class PerfilPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      bottomNavigationBar: const AppBottomNavBar(
-        currentIndex: 3,
-      ),
+      bottomNavigationBar: const AppBottomNavBar(currentIndex: 3),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
@@ -102,11 +100,7 @@ class _TopBar extends StatelessWidget {
             fontWeight: FontWeight.w800,
           ),
         ),
-        Icon(
-          Icons.edit_square,
-          color: PerfilPage.primaryBlue,
-          size: 30,
-        ),
+        Icon(Icons.edit_square, color: PerfilPage.primaryBlue, size: 30),
       ],
     );
   }
@@ -145,10 +139,7 @@ class _ProfileHeader extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: PerfilPage.primaryBlue,
                   shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.white,
-                    width: 5,
-                  ),
+                  border: Border.all(color: Colors.white, width: 5),
                 ),
                 child: const Icon(
                   Icons.photo_camera,
@@ -192,14 +183,10 @@ class _StatsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 150,
-      padding: const EdgeInsets.symmetric(horizontal: 18),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 18),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(
-          color: PerfilPage.borderGray,
-          width: 1.2,
-        ),
+        border: Border.all(color: PerfilPage.borderGray, width: 1.2),
         borderRadius: BorderRadius.circular(16),
       ),
       child: const Row(
@@ -249,11 +236,7 @@ class _StatItem extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(
-          icon,
-          color: PerfilPage.primaryBlue,
-          size: 34,
-        ),
+        Icon(icon, color: PerfilPage.primaryBlue, size: 34),
         const SizedBox(height: 18),
         Text(
           number,
@@ -283,11 +266,7 @@ class _VerticalDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 1,
-      height: 94,
-      color: PerfilPage.borderGray,
-    );
+    return Container(width: 1, height: 94, color: PerfilPage.borderGray);
   }
 }
 
@@ -305,13 +284,11 @@ class _ProfileMenuItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 98,
+      constraints: const BoxConstraints(minHeight: 98),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: const BoxDecoration(
         border: Border(
-          bottom: BorderSide(
-            color: PerfilPage.borderGray,
-            width: 1,
-          ),
+          bottom: BorderSide(color: PerfilPage.borderGray, width: 1),
         ),
       ),
       child: Row(
@@ -323,11 +300,7 @@ class _ProfileMenuItem extends StatelessWidget {
               color: PerfilPage.lightBlue,
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              icon,
-              color: PerfilPage.primaryBlue,
-              size: 30,
-            ),
+            child: Icon(icon, color: PerfilPage.primaryBlue, size: 30),
           ),
 
           const SizedBox(width: 22),
@@ -348,6 +321,8 @@ class _ProfileMenuItem extends StatelessWidget {
                 const SizedBox(height: 7),
                 Text(
                   subtitle,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: PerfilPage.textGray,
                     fontSize: 16,
@@ -358,11 +333,7 @@ class _ProfileMenuItem extends StatelessWidget {
             ),
           ),
 
-          const Icon(
-            Icons.chevron_right,
-            color: PerfilPage.textGray,
-            size: 32,
-          ),
+          const Icon(Icons.chevron_right, color: PerfilPage.textGray, size: 32),
         ],
       ),
     );

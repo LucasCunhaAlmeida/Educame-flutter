@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../core/routes/app_router.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../cadastro/view/cadastro_page.dart';
-import '../../home/home_page.dart';
 import '../viewmodels/login_viewmodel.dart';
 
 class LoginPage extends StatefulWidget {
@@ -30,9 +31,7 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
 
-    _viewModel = LoginViewModel(
-      authRepository: AuthRepository(),
-    );
+    _viewModel = LoginViewModel(authRepository: AuthRepository());
   }
 
   @override
@@ -68,20 +67,13 @@ class _LoginPageState extends State<LoginPage> {
         return;
       }
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const HomePage(),
-        ),
-      );
+      context.go(AppRoutes.home);
     } catch (error) {
       if (!mounted) {
         return;
       }
 
-      final mensagemErro = error
-          .toString()
-          .replaceFirst('Exception: ', '');
+      final mensagemErro = error.toString().replaceFirst('Exception: ', '');
 
       _mostrarErro(mensagemErro);
     } finally {
@@ -94,19 +86,15 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _mostrarErro(String mensagem) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(mensagem),
-      ),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(mensagem)));
   }
 
   void _abrirCadastro() {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => const CadastroPage(),
-      ),
+      MaterialPageRoute(builder: (_) => const CadastroPage()),
     );
   }
 
@@ -116,27 +104,15 @@ class _LoginPageState extends State<LoginPage> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          const Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: _BottomWaves(),
-          ),
+          const Positioned(left: 0, right: 0, bottom: 0, child: _BottomWaves()),
 
           SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(
-                32,
-                90,
-                32,
-                180,
-              ),
+              padding: const EdgeInsets.fromLTRB(32, 90, 32, 180),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Center(
-                    child: _LogoArea(),
-                  ),
+                  const Center(child: _LogoArea()),
 
                   const SizedBox(height: 90),
 
@@ -162,9 +138,7 @@ class _LoginPageState extends State<LoginPage> {
 
                   const SizedBox(height: 54),
 
-                  const _InputLabel(
-                    text: 'E-mail',
-                  ),
+                  const _InputLabel(text: 'E-mail'),
 
                   const SizedBox(height: 12),
 
@@ -177,9 +151,7 @@ class _LoginPageState extends State<LoginPage> {
 
                   const SizedBox(height: 38),
 
-                  const _InputLabel(
-                    text: 'Senha',
-                  ),
+                  const _InputLabel(text: 'Senha'),
 
                   const SizedBox(height: 12),
 
@@ -233,15 +205,13 @@ class _LoginPageState extends State<LoginPage> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
                         gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFF005BFF),
-                            Color(0xFF006DFF),
-                          ],
+                          colors: [Color(0xFF005BFF), Color(0xFF006DFF)],
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: LoginPage.primaryBlue
-                                .withValues(alpha: 0.25),
+                            color: LoginPage.primaryBlue.withValues(
+                              alpha: 0.25,
+                            ),
                             blurRadius: 16,
                             offset: const Offset(0, 8),
                           ),
@@ -250,10 +220,10 @@ class _LoginPageState extends State<LoginPage> {
                       child: ElevatedButton(
                         onPressed: _carregando ? null : _entrar,
                         style: ElevatedButton.styleFrom(
-                          disabledBackgroundColor:
-                              Colors.transparent,
-                          disabledForegroundColor:
-                              Colors.white,
+                          backgroundColor: Colors.transparent,
+                          foregroundColor: Colors.white,
+                          disabledBackgroundColor: Colors.transparent,
+                          disabledForegroundColor: Colors.white,
                           shadowColor: Colors.transparent,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
@@ -376,9 +346,7 @@ class _LogoArea extends StatelessWidget {
 class _InputLabel extends StatelessWidget {
   final String text;
 
-  const _InputLabel({
-    required this.text,
-  });
+  const _InputLabel({required this.text});
 
   @override
   Widget build(BuildContext context) {
@@ -418,25 +386,14 @@ class _CustomTextField extends StatelessWidget {
         controller: controller,
         obscureText: obscureText,
         keyboardType: keyboardType,
-        style: const TextStyle(
-          color: LoginPage.darkBlue,
-          fontSize: 18,
-        ),
+        style: const TextStyle(color: LoginPage.darkBlue, fontSize: 18),
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: const TextStyle(
-            color: LoginPage.textGray,
-            fontSize: 18,
-          ),
+          hintStyle: const TextStyle(color: LoginPage.textGray, fontSize: 18),
 
-          prefixIcon: Icon(
-            icon,
-            color: LoginPage.primaryBlue,
-            size: 28,
-          ),
+          prefixIcon: Icon(icon, color: LoginPage.primaryBlue, size: 28),
 
           suffixIcon: suffixIcon,
-
           filled: true,
           fillColor: Colors.white,
 
@@ -474,9 +431,7 @@ class _BottomWaves extends StatelessWidget {
     return SizedBox(
       height: 170,
       width: double.infinity,
-      child: CustomPaint(
-        painter: _WavesPainter(),
-      ),
+      child: CustomPaint(painter: _WavesPainter()),
     );
   }
 }
@@ -542,9 +497,7 @@ class _WavesPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(
-    covariant CustomPainter oldDelegate,
-  ) {
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return false;
   }
 }
