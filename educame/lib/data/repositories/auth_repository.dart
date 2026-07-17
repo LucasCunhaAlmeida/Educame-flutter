@@ -6,9 +6,7 @@ class AuthRepository {
   Future<void> cadastrar(Pessoa pessoa) async {
     final database = await AppDatabase.database;
 
-    final senhaHash = PasswordHasher.hash(
-      pessoa.senha,
-    );
+    final senhaHash = PasswordHasher.hash(pessoa.senha);
 
     final pessoaComSenhaHash = Pessoa(
       nome: pessoa.nome,
@@ -22,36 +20,23 @@ class AuthRepository {
       senha: senhaHash,
     );
 
-    await database.transaction(
-      (transaction) async {
-        final pessoaId = await transaction.insert(
-          'pessoa',
-          pessoaComSenhaHash.toMap(),
-        );
+    await database.transaction((transaction) async {
+      final pessoaId = await transaction.insert(
+        'pessoa',
+        pessoaComSenhaHash.toMap(),
+      );
 
-        await transaction.insert(
-          'aluno',
-          {
-            'pessoa_id': pessoaId,
-          },
-        );
+      await transaction.insert('aluno', {'pessoa_id': pessoaId});
 
-        await transaction.insert(
-          'professor',
-          {
-            'pessoa_id': pessoaId,
-            'valor_hora_aula': 0,
-            'ativo': 1,
-          },
-        );
-      },
-    );
+      await transaction.insert('professor', {
+        'pessoa_id': pessoaId,
+        'valor_hora_aula': 0,
+        'ativo': 1,
+      });
+    });
   }
 
-  Future<Pessoa?> login({
-  required String email,
-  required String senha,
-  }) async {
+  Future<Pessoa?> login({required String email, required String senha}) async {
     final database = await AppDatabase.database;
 
     final resultado = await database.query(
@@ -65,9 +50,7 @@ class AuthRepository {
       return null;
     }
 
-    final pessoa = Pessoa.fromMap(
-      resultado.first,
-    );
+    final pessoa = Pessoa.fromMap(resultado.first);
 
     final senhaValida = PasswordHasher.verify(
       password: senha,
