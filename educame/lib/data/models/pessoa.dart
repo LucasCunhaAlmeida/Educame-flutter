@@ -64,7 +64,7 @@ class Pessoa {
       sobrenome: map['sobrenome'] as String,
       dataNascimento: DateTime.parse(map['data_nascimento'] as String),
       genero: map['genero'] as String?,
-      cpf: map['cpf'] as String,
+      cpf: map['cpf'] as String?,
       fotoPerfil: map['foto_perfil'] as String?,
       enderecoId: map['endereco_id'] as int?,
       email: map['email'] as String,
