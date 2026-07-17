@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
+import '../../core/routes/app_router.dart';
 import '../../core/widgets/app_bottom_nav_bar.dart';
+import '../../data/models/professor.dart';
+import 'home_viewmodel.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -15,9 +20,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      bottomNavigationBar: const AppBottomNavBar(
-        currentIndex: 0,
-      ),
+      bottomNavigationBar: const AppBottomNavBar(currentIndex: 0),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 34, 24, 24),
@@ -26,7 +29,11 @@ class HomePage extends StatelessWidget {
             children: [
               const _Header(),
 
-              const SizedBox(height: 52),
+              const SizedBox(height: 38),
+
+              const _ProfessoresDestaqueSection(),
+
+              const SizedBox(height: 46),
 
               _SectionHeader(
                 icon: Icons.calendar_today_outlined,
@@ -134,28 +141,31 @@ class _Header extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Olá, Lucas!',
-              style: TextStyle(
-                color: HomePage.darkBlue,
-                fontSize: 31,
-                fontWeight: FontWeight.w800,
+        const Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Olá, Lucas!',
+                style: TextStyle(
+                  color: HomePage.darkBlue,
+                  fontSize: 31,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Aqui está sua agenda da semana.',
-              style: TextStyle(
-                color: HomePage.textGray,
-                fontSize: 17,
-                fontWeight: FontWeight.w400,
+              SizedBox(height: 8),
+              Text(
+                'Aqui está sua agenda da semana.',
+                style: TextStyle(
+                  color: HomePage.textGray,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+        const SizedBox(width: 12),
         Container(
           width: 58,
           height: 58,
@@ -170,6 +180,238 @@ class _Header extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _ProfessoresDestaqueSection extends StatelessWidget {
+  const _ProfessoresDestaqueSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(
+              Icons.school_outlined,
+              color: HomePage.primaryBlue,
+              size: 29,
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text(
+                'Professores em destaque',
+                style: TextStyle(
+                  color: HomePage.darkBlue,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => context.go(AppRoutes.professores),
+              child: const Text('Ver todos'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          'Conheça professores bem avaliados pelos alunos.',
+          style: TextStyle(color: HomePage.textGray, fontSize: 16),
+        ),
+        const SizedBox(height: 20),
+        Consumer<HomeViewModel>(
+          builder: (context, viewModel, child) {
+            if (viewModel.carregando && viewModel.professoresDestaque.isEmpty) {
+              return const SizedBox(
+                height: 184,
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+            if (viewModel.erro != null) {
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF7F9FC),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Column(
+                  children: [
+                    const Icon(
+                      Icons.cloud_off_outlined,
+                      color: HomePage.textGray,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      viewModel.erro!,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: HomePage.textGray),
+                    ),
+                    TextButton(
+                      onPressed: viewModel.carregar,
+                      child: const Text('Tentar novamente'),
+                    ),
+                  ],
+                ),
+              );
+            }
+            if (viewModel.semDestaques) {
+              return const SizedBox(
+                height: 100,
+                child: Center(
+                  child: Text(
+                    'Nenhum professor em destaque.',
+                    style: TextStyle(color: HomePage.textGray),
+                  ),
+                ),
+              );
+            }
+
+            return SizedBox(
+              height: 184,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: viewModel.professoresDestaque.length,
+                separatorBuilder: (_, _) => const SizedBox(width: 13),
+                itemBuilder: (context, index) {
+                  return _FeaturedProfessorCard(
+                    professor: viewModel.professoresDestaque[index],
+                  );
+                },
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _FeaturedProfessorCard extends StatelessWidget {
+  final Professor professor;
+
+  const _FeaturedProfessorCard({required this.professor});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: HomePage.borderGray),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () => context.push(AppRoutes.professorDetalhes(professor.id!)),
+        child: SizedBox(
+          width: 245,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 25,
+                      backgroundColor: HomePage.lightBlue,
+                      foregroundColor: HomePage.primaryBlue,
+                      child: Text(
+                        professor.iniciais,
+                        style: const TextStyle(fontWeight: FontWeight.w800),
+                      ),
+                    ),
+                    const SizedBox(width: 11),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            professor.nomeCompleto,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: HomePage.darkBlue,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            professor.especialidades.isEmpty
+                                ? 'Professor'
+                                : professor.especialidades.first.nome,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: HomePage.primaryBlue,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                Row(
+                  children: [
+                    Expanded(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.star_rounded,
+                              color: Color(0xFFF5B301),
+                              size: 20,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              professor.mediaAvaliacoes.toStringAsFixed(1),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            Text(
+                              ' (${professor.totalAvaliacoes})',
+                              style: const TextStyle(color: HomePage.textGray),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'R\$ ${professor.valorHoraAula.toStringAsFixed(0)}/h',
+                      style: const TextStyle(
+                        color: HomePage.primaryBlue,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 9),
+                const Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    'Ver perfil →',
+                    style: TextStyle(
+                      color: HomePage.primaryBlue,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -189,11 +431,7 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(
-          icon,
-          color: HomePage.primaryBlue,
-          size: 29,
-        ),
+        Icon(icon, color: HomePage.primaryBlue, size: 29),
         const SizedBox(width: 12),
         Expanded(
           child: Text(
@@ -242,39 +480,32 @@ class _ClassCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 116,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(
-          color: HomePage.borderGray,
-          width: 1,
-        ),
+        border: Border.all(color: HomePage.borderGray, width: 1),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
         children: [
           Container(
-            width: 74,
-            height: 74,
+            width: 54,
+            height: 54,
             decoration: BoxDecoration(
               color: backgroundColor,
               borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(
-              icon,
-              color: iconColor,
-              size: 42,
-            ),
+            child: Icon(icon, color: iconColor, size: 32),
           ),
-          const SizedBox(width: 22),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: HomePage.darkBlue,
                     fontSize: 21,
@@ -284,6 +515,8 @@ class _ClassCard extends StatelessWidget {
                 const SizedBox(height: 7),
                 Text(
                   teacher,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: HomePage.textGray,
                     fontSize: 16,
@@ -291,54 +524,42 @@ class _ClassCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 7),
-                Row(
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 6,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    const Icon(
-                      Icons.location_on_outlined,
-                      color: HomePage.textGray,
-                      size: 18,
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.location_on_outlined,
+                          color: HomePage.textGray,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          type,
+                          style: const TextStyle(
+                            color: HomePage.textGray,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 8),
                     Text(
-                      type,
+                      '$date • $time',
                       style: const TextStyle(
-                        color: HomePage.textGray,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                        color: HomePage.primaryBlue,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
                 ),
               ],
             ),
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                date,
-                style: const TextStyle(
-                  color: HomePage.textGray,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                time,
-                style: const TextStyle(
-                  color: HomePage.primaryBlue,
-                  fontSize: 23,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(width: 14),
-          const Icon(
-            Icons.chevron_right,
-            color: HomePage.primaryBlue,
-            size: 34,
           ),
         ],
       ),
@@ -352,48 +573,52 @@ class _EmptyScheduleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 94,
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xFFEAF2FF),
         borderRadius: BorderRadius.circular(14),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Icon(
-            Icons.calendar_today_outlined,
-            color: HomePage.primaryBlue,
-            size: 40,
-          ),
-          const SizedBox(width: 24),
-          const Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Nada agendado para o resto da semana',
-                  style: TextStyle(
-                    color: HomePage.darkBlue,
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                  ),
+          const Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.calendar_today_outlined,
+                color: HomePage.primaryBlue,
+                size: 34,
+              ),
+              SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Nada agendado para o resto da semana',
+                      style: TextStyle(
+                        color: HomePage.darkBlue,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Que tal agendar uma nova aula?',
+                      style: TextStyle(
+                        color: HomePage.textGray,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(height: 8),
-                Text(
-                  'Que tal agendar uma nova aula?',
-                  style: TextStyle(
-                    color: HomePage.textGray,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
+          const SizedBox(height: 14),
           Container(
-            height: 48,
-            padding: const EdgeInsets.symmetric(horizontal: 22),
+            height: 44,
             decoration: BoxDecoration(
               color: HomePage.primaryBlue,
               borderRadius: BorderRadius.circular(8),
@@ -463,7 +688,7 @@ class _SubjectsList extends StatelessWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: subjects.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 20),
+        separatorBuilder: (_, _) => const SizedBox(width: 20),
         itemBuilder: (context, index) {
           return subjects[index];
         },
@@ -498,11 +723,7 @@ class _SubjectItem extends StatelessWidget {
               color: backgroundColor,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
-              icon,
-              color: iconColor,
-              size: 38,
-            ),
+            child: Icon(icon, color: iconColor, size: 38),
           ),
           const SizedBox(height: 10),
           Text(
@@ -527,21 +748,17 @@ class _HistoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 94,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(
-          color: HomePage.borderGray,
-          width: 1,
-        ),
+        border: Border.all(color: HomePage.borderGray, width: 1),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
         children: [
           Container(
-            width: 58,
-            height: 58,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
               color: HomePage.lightBlue,
               borderRadius: BorderRadius.circular(12),
@@ -549,10 +766,10 @@ class _HistoryCard extends StatelessWidget {
             child: const Icon(
               Icons.history,
               color: HomePage.primaryBlue,
-              size: 36,
+              size: 30,
             ),
           ),
-          const SizedBox(width: 22),
+          const SizedBox(width: 14),
           const Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -578,15 +795,6 @@ class _HistoryCard extends StatelessWidget {
               ],
             ),
           ),
-          const Text(
-            'Ver histórico',
-            style: TextStyle(
-              color: HomePage.primaryBlue,
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(width: 10),
           const Icon(
             Icons.chevron_right,
             color: HomePage.primaryBlue,
