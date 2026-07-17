@@ -115,7 +115,7 @@ class AppDatabase {
         sobrenome TEXT NOT NULL,
         data_nascimento TEXT NOT NULL,
         genero TEXT,
-        cpf TEXT NOT NULL UNIQUE,
+        cpf TEXT UNIQUE,
         foto_perfil TEXT,
         endereco_id INTEGER,
         email TEXT NOT NULL UNIQUE,

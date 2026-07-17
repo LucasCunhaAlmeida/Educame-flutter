@@ -6,7 +6,7 @@ import '../../data/repositories/avaliacao_repository.dart';
 import '../../data/repositories/disponibilidade_repository.dart';
 import '../../data/repositories/professor_repository.dart';
 import '../../features/home/home_page.dart';
-import '../../features/login/login_page.dart';
+import '../../features/login/view/login_page.dart';
 import '../../features/mensagens/mensagens_page.dart';
 import '../../features/perfil/perfil_page.dart';
 import '../../features/professor_detalhes/professor_detalhes_page.dart';
