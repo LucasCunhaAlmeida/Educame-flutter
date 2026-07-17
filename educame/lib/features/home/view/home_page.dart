@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/routes/app_router.dart';
-import '../../core/widgets/app_bottom_nav_bar.dart';
-import '../../data/models/professor.dart';
-import 'home_viewmodel.dart';
+import '../../../core/routes/app_router.dart';
+import '../../../core/widgets/app_bottom_nav_bar.dart';
+import '../../../data/models/professor.dart';
+import '../viewmodel/home_viewmodel.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -18,6 +18,10 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final nomeUsuario = context.select<HomeViewModel, String>(
+      (viewModel) => viewModel.nomeUsuario,
+    );
+
     return Scaffold(
       backgroundColor: Colors.white,
       bottomNavigationBar: const AppBottomNavBar(currentIndex: 0),
@@ -27,7 +31,7 @@ class HomePage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const _Header(),
+              _Header(nomeUsuario: nomeUsuario),
 
               const SizedBox(height: 38),
 
@@ -134,27 +138,29 @@ class HomePage extends StatelessWidget {
 }
 
 class _Header extends StatelessWidget {
-  const _Header();
+  final String nomeUsuario;
+
+  const _Header({required this.nomeUsuario});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Olá, Lucas!',
-                style: TextStyle(
+                'Olá, $nomeUsuario!',
+                style: const TextStyle(
                   color: HomePage.darkBlue,
                   fontSize: 31,
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              SizedBox(height: 8),
-              Text(
+              const SizedBox(height: 8),
+              const Text(
                 'Aqui está sua agenda da semana.',
                 style: TextStyle(
                   color: HomePage.textGray,
