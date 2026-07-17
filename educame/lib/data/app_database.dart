@@ -3,7 +3,7 @@ import 'package:sqflite/sqflite.dart';
 
 class AppDatabase {
   static const String _databaseName = 'educame.db';
-  static const int _databaseVersion = 2;
+  static const int _databaseVersion = 3;
 
   static Database? _database;
   static Future<Database>? _databaseFuture;
@@ -41,7 +41,18 @@ class AppDatabase {
       path,
       version: _databaseVersion,
       onConfigure: (database) async {
-        await database.execute('PRAGMA foreign_keys = ON');
+        final currentVersion =
+            Sqflite.firstIntValue(
+              await database.rawQuery('PRAGMA user_version'),
+            ) ??
+            0;
+
+        // A recriação da tabela pessoa na migração v3 exige que as chaves
+        // estrangeiras estejam temporariamente desativadas.
+        final isMigratingToVersion3 = currentVersion > 0 && currentVersion < 3;
+        await database.execute(
+          'PRAGMA foreign_keys = ${isMigratingToVersion3 ? 'OFF' : 'ON'}',
+        );
       },
       onCreate: (database, version) async {
         await _createTables(database);
@@ -49,6 +60,9 @@ class AppDatabase {
         await _seedDatabase(database);
       },
       onUpgrade: _onUpgrade,
+      onOpen: (database) async {
+        await database.execute('PRAGMA foreign_keys = ON');
+      },
     );
   }
 
@@ -91,6 +105,74 @@ class AppDatabase {
       await _createIndexes(database);
       await _seedDatabase(database);
     }
+
+    if (oldVersion < 3) {
+      await _migratePessoaCpfToNullable(database);
+    }
+  }
+
+  static Future<void> _migratePessoaCpfToNullable(Database database) async {
+    final columns = await database.rawQuery('PRAGMA table_info(pessoa)');
+    final cpfColumn = columns.cast<Map<String, Object?>>().firstWhere(
+      (column) => column['name'] == 'cpf',
+    );
+
+    if (cpfColumn['notnull'] != 1) {
+      return;
+    }
+
+    await database.execute('''
+      CREATE TABLE pessoa_v3 (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT NOT NULL,
+        sobrenome TEXT NOT NULL,
+        data_nascimento TEXT NOT NULL,
+        genero TEXT,
+        cpf TEXT UNIQUE,
+        foto_perfil TEXT,
+        endereco_id INTEGER,
+        email TEXT NOT NULL UNIQUE,
+        senha TEXT NOT NULL,
+
+        FOREIGN KEY (endereco_id)
+          REFERENCES endereco (id)
+          ON DELETE SET NULL
+      )
+    ''');
+
+    await database.execute('''
+      INSERT INTO pessoa_v3 (
+        id,
+        nome,
+        sobrenome,
+        data_nascimento,
+        genero,
+        cpf,
+        foto_perfil,
+        endereco_id,
+        email,
+        senha
+      )
+      SELECT
+        id,
+        nome,
+        sobrenome,
+        data_nascimento,
+        genero,
+        cpf,
+        foto_perfil,
+        endereco_id,
+        email,
+        senha
+      FROM pessoa
+    ''');
+
+    await database.execute('DROP TABLE pessoa');
+    await database.execute('ALTER TABLE pessoa_v3 RENAME TO pessoa');
+    await database.execute('''
+      CREATE INDEX IF NOT EXISTS idx_pessoa_nome
+      ON pessoa (nome COLLATE NOCASE, sobrenome COLLATE NOCASE)
+    ''');
   }
 
   static Future<void> _createTables(Database database) async {
