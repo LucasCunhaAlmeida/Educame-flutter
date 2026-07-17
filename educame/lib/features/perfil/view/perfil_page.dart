@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../../core/widgets/app_bottom_nav_bar.dart';
-import '../viewmodel/perfil_viewmodel.dart';
+import '../../../data/repositories/auth_repository.dart';
+import '../../login/view/login_page.dart';
+import '../viewmodel/perfil_view_model.dart';
 
-class PerfilPage extends StatelessWidget {
+class PerfilPage extends StatefulWidget {
   const PerfilPage({super.key});
 
   static const Color primaryBlue = Color(0xFF006DFF);
@@ -14,16 +15,44 @@ class PerfilPage extends StatelessWidget {
   static const Color lightBlue = Color(0xFFEAF2FF);
 
   @override
-  Widget build(BuildContext context) {
-    final dadosUsuario = context
-        .select<PerfilViewModel, ({String nome, String email})>(
-          (viewModel) =>
-              (nome: viewModel.nomeUsuario, email: viewModel.emailUsuario),
-        );
+  State<PerfilPage> createState() => _PerfilPageState();
+}
 
+class _PerfilPageState extends State<PerfilPage> {
+  late final PerfilViewModel _viewModel;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _viewModel = PerfilViewModel(
+      authRepository: AuthRepository(),
+    );
+  }
+
+  Future<void> _logout() async {
+    await _viewModel.logout();
+
+    if (!mounted) {
+      return;
+    }
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const LoginPage(),
+      ),
+      (route) => false,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      bottomNavigationBar: const AppBottomNavBar(currentIndex: 3),
+      bottomNavigationBar: const AppBottomNavBar(
+        currentIndex: 3,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
@@ -33,10 +62,7 @@ class PerfilPage extends StatelessWidget {
 
               const SizedBox(height: 34),
 
-              _ProfileHeader(
-                nome: dadosUsuario.nome,
-                email: dadosUsuario.email,
-              ),
+              const _ProfileHeader(),
 
               const SizedBox(height: 30),
 
@@ -49,30 +75,36 @@ class PerfilPage extends StatelessWidget {
                 title: 'Dados pessoais',
                 subtitle: 'Gerencie suas informações',
               ),
+
               const _ProfileMenuItem(
                 icon: Icons.notifications_none_outlined,
                 title: 'Notificações',
                 subtitle: 'Configure suas preferências',
               ),
+
               const _ProfileMenuItem(
                 icon: Icons.security_outlined,
                 title: 'Segurança',
                 subtitle: 'Senha e privacidade',
               ),
+
               const _ProfileMenuItem(
                 icon: Icons.credit_card_outlined,
                 title: 'Pagamentos',
                 subtitle: 'Métodos de pagamento',
               ),
+
               const _ProfileMenuItem(
                 icon: Icons.help_outline,
                 title: 'Ajuda e suporte',
                 subtitle: 'Dúvidas e atendimento',
               ),
-              const _ProfileMenuItem(
+
+              _ProfileMenuItem(
                 icon: Icons.logout_outlined,
                 title: 'Sair da conta',
                 subtitle: 'Encerrar sessão',
+                onTap: _logout,
               ),
 
               const SizedBox(height: 24),
@@ -80,7 +112,7 @@ class PerfilPage extends StatelessWidget {
               const Text(
                 'Versão 1.0.0',
                 style: TextStyle(
-                  color: textGray,
+                  color: PerfilPage.textGray,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
@@ -111,17 +143,18 @@ class _TopBar extends StatelessWidget {
             fontWeight: FontWeight.w800,
           ),
         ),
-        Icon(Icons.edit_square, color: PerfilPage.primaryBlue, size: 30),
+        Icon(
+          Icons.edit_square,
+          color: PerfilPage.primaryBlue,
+          size: 30,
+        ),
       ],
     );
   }
 }
 
 class _ProfileHeader extends StatelessWidget {
-  final String nome;
-  final String email;
-
-  const _ProfileHeader({required this.nome, required this.email});
+  const _ProfileHeader();
 
   @override
   Widget build(BuildContext context) {
@@ -153,7 +186,10 @@ class _ProfileHeader extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: PerfilPage.primaryBlue,
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 5),
+                  border: Border.all(
+                    color: Colors.white,
+                    width: 5,
+                  ),
                 ),
                 child: const Icon(
                   Icons.photo_camera,
@@ -167,10 +203,9 @@ class _ProfileHeader extends StatelessWidget {
 
         const SizedBox(height: 22),
 
-        Text(
-          nome,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
+        const Text(
+          'Ana Clara',
+          style: TextStyle(
             color: PerfilPage.darkBlue,
             fontSize: 30,
             fontWeight: FontWeight.w800,
@@ -179,10 +214,9 @@ class _ProfileHeader extends StatelessWidget {
 
         const SizedBox(height: 6),
 
-        Text(
-          email,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
+        const Text(
+          'anaclara@email.com',
+          style: TextStyle(
             color: PerfilPage.textGray,
             fontSize: 18,
             fontWeight: FontWeight.w400,
@@ -199,10 +233,16 @@ class _StatsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 18),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 18,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(color: PerfilPage.borderGray, width: 1.2),
+        border: Border.all(
+          color: PerfilPage.borderGray,
+          width: 1.2,
+        ),
         borderRadius: BorderRadius.circular(16),
       ),
       child: const Row(
@@ -214,7 +254,9 @@ class _StatsCard extends StatelessWidget {
               label: 'Aulas agendadas',
             ),
           ),
+
           _VerticalDivider(),
+
           Expanded(
             child: _StatItem(
               icon: Icons.access_time,
@@ -222,7 +264,9 @@ class _StatsCard extends StatelessWidget {
               label: 'Horas reservadas',
             ),
           ),
+
           _VerticalDivider(),
+
           Expanded(
             child: _StatItem(
               icon: Icons.menu_book_outlined,
@@ -252,8 +296,14 @@ class _StatItem extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(icon, color: PerfilPage.primaryBlue, size: 34),
+        Icon(
+          icon,
+          color: PerfilPage.primaryBlue,
+          size: 34,
+        ),
+
         const SizedBox(height: 18),
+
         Text(
           number,
           style: const TextStyle(
@@ -262,7 +312,9 @@ class _StatItem extends StatelessWidget {
             fontWeight: FontWeight.w800,
           ),
         ),
+
         const SizedBox(height: 6),
+
         Text(
           label,
           textAlign: TextAlign.center,
@@ -282,7 +334,11 @@ class _VerticalDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(width: 1, height: 94, color: PerfilPage.borderGray);
+    return Container(
+      width: 1,
+      height: 94,
+      color: PerfilPage.borderGray,
+    );
   }
 }
 
@@ -290,67 +346,89 @@ class _ProfileMenuItem extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
+  final VoidCallback? onTap;
 
   const _ProfileMenuItem({
     required this.icon,
     required this.title,
     required this.subtitle,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      constraints: const BoxConstraints(minHeight: 98),
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      decoration: const BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: PerfilPage.borderGray, width: 1),
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        constraints: const BoxConstraints(
+          minHeight: 98,
         ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 58,
-            height: 58,
-            decoration: const BoxDecoration(
-              color: PerfilPage.lightBlue,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: PerfilPage.primaryBlue, size: 30),
-          ),
-
-          const SizedBox(width: 22),
-
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: PerfilPage.darkBlue,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 7),
-                Text(
-                  subtitle,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: PerfilPage.textGray,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ],
+        padding: const EdgeInsets.symmetric(
+          vertical: 16,
+        ),
+        decoration: const BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: PerfilPage.borderGray,
+              width: 1,
             ),
           ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 58,
+              height: 58,
+              decoration: const BoxDecoration(
+                color: PerfilPage.lightBlue,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                color: PerfilPage.primaryBlue,
+                size: 30,
+              ),
+            ),
 
-          const Icon(Icons.chevron_right, color: PerfilPage.textGray, size: 32),
-        ],
+            const SizedBox(width: 22),
+
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: PerfilPage.darkBlue,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+
+                  const SizedBox(height: 7),
+
+                  Text(
+                    subtitle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: PerfilPage.textGray,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const Icon(
+              Icons.chevron_right,
+              color: PerfilPage.textGray,
+              size: 32,
+            ),
+          ],
+        ),
       ),
     );
   }

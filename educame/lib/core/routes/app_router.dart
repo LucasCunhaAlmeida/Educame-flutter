@@ -9,9 +9,9 @@ import '../../features/home/view/home_page.dart';
 import '../../features/login/view/login_page.dart';
 import '../../features/mensagens/mensagens_page.dart';
 import '../../features/perfil/view/perfil_page.dart';
-import '../../features/professor_detalhes/view/professor_detalhes_page.dart';
-import '../../features/professor_detalhes/viewmodel/professor_detalhes_viewmodel.dart';
-import '../../features/professores/view/professores_page.dart';
+import '../../features/professor_detalhes/professor_detalhes_page.dart';
+import '../../features/professor_detalhes/professor_detalhes_viewmodel.dart';
+import '../../features/professores/professores_page.dart';
 
 abstract final class AppRoutes {
   static const login = '/login';
