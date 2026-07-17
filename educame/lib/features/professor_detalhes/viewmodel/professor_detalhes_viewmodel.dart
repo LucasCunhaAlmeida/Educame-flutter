@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
 
-import '../../data/models/avaliacao.dart';
-import '../../data/models/disponibilidade.dart';
-import '../../data/models/professor.dart';
-import '../../data/repositories/avaliacao_repository.dart';
-import '../../data/repositories/disponibilidade_repository.dart';
-import '../../data/repositories/professor_repository.dart';
+import '../../../data/models/avaliacao.dart';
+import '../../../data/models/disponibilidade.dart';
+import '../../../data/models/professor.dart';
+import '../../../data/repositories/avaliacao_repository.dart';
+import '../../../data/repositories/disponibilidade_repository.dart';
+import '../../../data/repositories/professor_repository.dart';
 
 class ProfessorDetalhesViewModel extends ChangeNotifier {
   final ProfessorRepository _professorRepository;
