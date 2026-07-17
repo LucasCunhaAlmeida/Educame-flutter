@@ -1,6 +1,7 @@
 import '../../core/security/password_hasher.dart';
 import '../app_database.dart';
 import '../models/pessoa.dart';
+import '../../core/session/session_manager.dart';
 
 class AuthRepository {
   Future<void> cadastrar(Pessoa pessoa) async {
@@ -62,5 +63,9 @@ class AuthRepository {
     }
 
     return pessoa;
+  }
+
+  Future<void> logout() async {
+    SessionManager.encerrarSessao();
   }
 }
