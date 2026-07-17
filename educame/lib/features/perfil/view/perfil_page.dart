@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../../core/widgets/app_bottom_nav_bar.dart';
+import '../../../core/widgets/app_bottom_nav_bar.dart';
+import '../viewmodel/perfil_viewmodel.dart';
 
 class PerfilPage extends StatelessWidget {
   const PerfilPage({super.key});
@@ -13,6 +15,12 @@ class PerfilPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dadosUsuario = context
+        .select<PerfilViewModel, ({String nome, String email})>(
+          (viewModel) =>
+              (nome: viewModel.nomeUsuario, email: viewModel.emailUsuario),
+        );
+
     return Scaffold(
       backgroundColor: Colors.white,
       bottomNavigationBar: const AppBottomNavBar(currentIndex: 3),
@@ -25,7 +33,10 @@ class PerfilPage extends StatelessWidget {
 
               const SizedBox(height: 34),
 
-              const _ProfileHeader(),
+              _ProfileHeader(
+                nome: dadosUsuario.nome,
+                email: dadosUsuario.email,
+              ),
 
               const SizedBox(height: 30),
 
@@ -107,7 +118,10 @@ class _TopBar extends StatelessWidget {
 }
 
 class _ProfileHeader extends StatelessWidget {
-  const _ProfileHeader();
+  final String nome;
+  final String email;
+
+  const _ProfileHeader({required this.nome, required this.email});
 
   @override
   Widget build(BuildContext context) {
@@ -153,9 +167,10 @@ class _ProfileHeader extends StatelessWidget {
 
         const SizedBox(height: 22),
 
-        const Text(
-          'Ana Clara',
-          style: TextStyle(
+        Text(
+          nome,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
             color: PerfilPage.darkBlue,
             fontSize: 30,
             fontWeight: FontWeight.w800,
@@ -164,9 +179,10 @@ class _ProfileHeader extends StatelessWidget {
 
         const SizedBox(height: 6),
 
-        const Text(
-          'anaclara@email.com',
-          style: TextStyle(
+        Text(
+          email,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
             color: PerfilPage.textGray,
             fontSize: 18,
             fontWeight: FontWeight.w400,
