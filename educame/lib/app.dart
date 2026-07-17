@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -8,8 +7,9 @@ import 'data/repositories/avaliacao_repository.dart';
 import 'data/repositories/disciplina_repository.dart';
 import 'data/repositories/disponibilidade_repository.dart';
 import 'data/repositories/professor_repository.dart';
-import 'features/home/home_viewmodel.dart';
-import 'features/professores/professor_viewmodel.dart';
+import 'features/home/viewmodel/home_viewmodel.dart';
+import 'features/perfil/viewmodel/perfil_viewmodel.dart';
+import 'features/professores/viewmodel/professor_viewmodel.dart';
 
 class EducameApp extends StatefulWidget {
   final ProfessorRepository? professorRepository;
@@ -71,6 +71,7 @@ class _EducameAppState extends State<EducameApp> {
               HomeViewModel(professorRepository: _professorRepository)
                 ..carregar(),
         ),
+        ChangeNotifierProvider(create: (_) => PerfilViewModel()),
         ChangeNotifierProvider(
           create: (_) => ProfessorViewModel(
             professorRepository: _professorRepository,
