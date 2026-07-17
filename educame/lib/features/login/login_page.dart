@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../core/routes/app_router.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -14,12 +17,7 @@ class LoginPage extends StatelessWidget {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          const Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: _BottomWaves(),
-          ),
+          const Positioned(left: 0, right: 0, bottom: 0, child: _BottomWaves()),
 
           SafeArea(
             child: SingleChildScrollView(
@@ -27,9 +25,7 @@ class LoginPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Center(
-                    child: _LogoArea(),
-                  ),
+                  const Center(child: _LogoArea()),
 
                   const SizedBox(height: 90),
 
@@ -100,10 +96,7 @@ class LoginPage extends StatelessWidget {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
                         gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFF005BFF),
-                            Color(0xFF006DFF),
-                          ],
+                          colors: [Color(0xFF005BFF), Color(0xFF006DFF)],
                         ),
                         boxShadow: [
                           BoxShadow(
@@ -114,10 +107,10 @@ class LoginPage extends StatelessWidget {
                         ],
                       ),
                       child: ElevatedButton(
-                        onPressed: null,
+                        onPressed: () => context.go(AppRoutes.home),
                         style: ElevatedButton.styleFrom(
-                          disabledBackgroundColor: Colors.transparent,
-                          disabledForegroundColor: Colors.white,
+                          backgroundColor: Colors.transparent,
+                          foregroundColor: Colors.white,
                           shadowColor: Colors.transparent,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
@@ -227,9 +220,7 @@ class _LogoArea extends StatelessWidget {
 class _InputLabel extends StatelessWidget {
   final String text;
 
-  const _InputLabel({
-    required this.text,
-  });
+  const _InputLabel({required this.text});
 
   @override
   Widget build(BuildContext context) {
@@ -264,28 +255,14 @@ class _CustomTextField extends StatelessWidget {
       child: TextField(
         enabled: false,
         obscureText: obscureText,
-        style: const TextStyle(
-          color: LoginPage.darkBlue,
-          fontSize: 18,
-        ),
+        style: const TextStyle(color: LoginPage.darkBlue, fontSize: 18),
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: const TextStyle(
-            color: LoginPage.textGray,
-            fontSize: 18,
-          ),
-          prefixIcon: Icon(
-            icon,
-            color: LoginPage.primaryBlue,
-            size: 28,
-          ),
+          hintStyle: const TextStyle(color: LoginPage.textGray, fontSize: 18),
+          prefixIcon: Icon(icon, color: LoginPage.primaryBlue, size: 28),
           suffixIcon: suffixIcon == null
               ? null
-              : Icon(
-                  suffixIcon,
-                  color: LoginPage.textGray,
-                  size: 28,
-                ),
+              : Icon(suffixIcon, color: LoginPage.textGray, size: 28),
           filled: true,
           fillColor: Colors.white,
           contentPadding: const EdgeInsets.symmetric(
@@ -313,9 +290,7 @@ class _BottomWaves extends StatelessWidget {
     return SizedBox(
       height: 170,
       width: double.infinity,
-      child: CustomPaint(
-        painter: _WavesPainter(),
-      ),
+      child: CustomPaint(painter: _WavesPainter()),
     );
   }
 }
