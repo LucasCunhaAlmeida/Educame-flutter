@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../cadastro/view/cadastro_page.dart';
+import '../../../data/repositories/auth_repository.dart';
+import '../../cadastro/view/cadastro_page.dart';
+import '../../home/home_page.dart';
+import '../viewmodels/login_viewmodel.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({
-    super.key,
-  });
+  const LoginPage({super.key});
 
   static const Color darkBlue = Color(0xFF08295A);
   static const Color primaryBlue = Color(0xFF005BFF);
@@ -20,7 +21,19 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _senhaController = TextEditingController();
 
+  late final LoginViewModel _viewModel;
+
+  bool _carregando = false;
   bool _mostrarSenha = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _viewModel = LoginViewModel(
+      authRepository: AuthRepository(),
+    );
+  }
 
   @override
   void dispose() {
@@ -30,36 +43,71 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _abrirCadastro() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const CadastroPage(),
+  Future<void> _entrar() async {
+    if (_emailController.text.trim().isEmpty) {
+      _mostrarErro('Informe o e-mail.');
+      return;
+    }
+
+    if (_senhaController.text.isEmpty) {
+      _mostrarErro('Informe a senha.');
+      return;
+    }
+
+    setState(() {
+      _carregando = true;
+    });
+
+    try {
+      await _viewModel.login(
+        email: _emailController.text.trim(),
+        senha: _senhaController.text,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const HomePage(),
+        ),
+      );
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      final mensagemErro = error
+          .toString()
+          .replaceFirst('Exception: ', '');
+
+      _mostrarErro(mensagemErro);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _carregando = false;
+        });
+      }
+    }
+  }
+
+  void _mostrarErro(String mensagem) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(mensagem),
       ),
     );
   }
 
-  void _entrar() {
-    final email = _emailController.text.trim();
-    final senha = _senhaController.text;
-
-    if (email.isEmpty || senha.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Preencha o e-mail e a senha.',
-          ),
-        ),
-      );
-
-      return;
-    }
-
-    // Futuramente:
-    // _viewModel.login(
-    //   email: email,
-    //   senha: senha,
-    // );
+  void _abrirCadastro() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const CadastroPage(),
+      ),
+    );
   }
 
   @override
@@ -141,6 +189,11 @@ class _LoginPageState extends State<LoginPage> {
                     icon: Icons.lock_outline,
                     obscureText: !_mostrarSenha,
                     suffixIcon: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _mostrarSenha = !_mostrarSenha;
+                        });
+                      },
                       icon: Icon(
                         _mostrarSenha
                             ? Icons.visibility_off_outlined
@@ -148,11 +201,6 @@ class _LoginPageState extends State<LoginPage> {
                         color: LoginPage.textGray,
                         size: 28,
                       ),
-                      onPressed: () {
-                        setState(() {
-                          _mostrarSenha = !_mostrarSenha;
-                        });
-                      },
                     ),
                   ),
 
@@ -162,8 +210,8 @@ class _LoginPageState extends State<LoginPage> {
                     alignment: Alignment.centerRight,
                     child: GestureDetector(
                       onTap: () {
-                        // Futuramente:
-                        // Navegação para recuperação de senha.
+                        // Funcionalidade de recuperação
+                        // de senha será implementada depois.
                       },
                       child: const Text(
                         'Esqueceu sua senha?',
@@ -192,31 +240,41 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: LoginPage.primaryBlue.withValues(
-                              alpha: 0.25,
-                            ),
+                            color: LoginPage.primaryBlue
+                                .withValues(alpha: 0.25),
                             blurRadius: 16,
                             offset: const Offset(0, 8),
                           ),
                         ],
                       ),
                       child: ElevatedButton(
-                        onPressed: _entrar,
+                        onPressed: _carregando ? null : _entrar,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          foregroundColor: Colors.white,
+                          disabledBackgroundColor:
+                              Colors.transparent,
+                          disabledForegroundColor:
+                              Colors.white,
                           shadowColor: Colors.transparent,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: const Text(
-                          'Entrar',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
+                        child: _carregando
+                            ? const SizedBox(
+                                width: 26,
+                                height: 26,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 3,
+                                ),
+                              )
+                            : const Text(
+                                'Entrar',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
                       ),
                     ),
                   ),
@@ -370,18 +428,23 @@ class _CustomTextField extends StatelessWidget {
             color: LoginPage.textGray,
             fontSize: 18,
           ),
+
           prefixIcon: Icon(
             icon,
             color: LoginPage.primaryBlue,
             size: 28,
           ),
+
           suffixIcon: suffixIcon,
+
           filled: true,
           fillColor: Colors.white,
+
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 20,
             vertical: 20,
           ),
+
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: const BorderSide(
@@ -389,6 +452,7 @@ class _CustomTextField extends StatelessWidget {
               width: 1.5,
             ),
           ),
+
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: const BorderSide(
@@ -419,19 +483,13 @@ class _BottomWaves extends StatelessWidget {
 
 class _WavesPainter extends CustomPainter {
   @override
-  void paint(
-    Canvas canvas,
-    Size size,
-  ) {
+  void paint(Canvas canvas, Size size) {
     final paintOne = Paint()
       ..color = const Color(0xFFE5EFFF)
       ..style = PaintingStyle.fill;
 
     final pathOne = Path()
-      ..moveTo(
-        0,
-        size.height * 0.25,
-      )
+      ..moveTo(0, size.height * 0.25)
       ..cubicTo(
         size.width * 0.25,
         size.height * 0.45,
@@ -448,32 +506,18 @@ class _WavesPainter extends CustomPainter {
         size.width,
         size.height * 0.45,
       )
-      ..lineTo(
-        size.width,
-        size.height,
-      )
-      ..lineTo(
-        0,
-        size.height,
-      )
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
       ..close();
 
-    canvas.drawPath(
-      pathOne,
-      paintOne,
-    );
+    canvas.drawPath(pathOne, paintOne);
 
     final paintTwo = Paint()
-      ..color = const Color(0xFFD8E8FF).withValues(
-        alpha: 0.75,
-      )
+      ..color = const Color(0xFFD8E8FF).withValues(alpha: 0.75)
       ..style = PaintingStyle.fill;
 
     final pathTwo = Path()
-      ..moveTo(
-        0,
-        size.height * 0.65,
-      )
+      ..moveTo(0, size.height * 0.65)
       ..cubicTo(
         size.width * 0.22,
         size.height * 0.5,
@@ -490,20 +534,11 @@ class _WavesPainter extends CustomPainter {
         size.width,
         size.height * 0.45,
       )
-      ..lineTo(
-        size.width,
-        size.height,
-      )
-      ..lineTo(
-        0,
-        size.height,
-      )
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
       ..close();
 
-    canvas.drawPath(
-      pathTwo,
-      paintTwo,
-    );
+    canvas.drawPath(pathTwo, paintTwo);
   }
 
   @override

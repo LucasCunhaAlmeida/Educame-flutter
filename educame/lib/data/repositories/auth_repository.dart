@@ -1,3 +1,4 @@
+import '../../core/security/password_hasher.dart';
 import '../app_database.dart';
 import '../models/pessoa.dart';
 
@@ -5,11 +6,27 @@ class AuthRepository {
   Future<void> cadastrar(Pessoa pessoa) async {
     final database = await AppDatabase.database;
 
+    final senhaHash = PasswordHasher.hash(
+      pessoa.senha,
+    );
+
+    final pessoaComSenhaHash = Pessoa(
+      nome: pessoa.nome,
+      sobrenome: pessoa.sobrenome,
+      dataNascimento: pessoa.dataNascimento,
+      genero: pessoa.genero,
+      cpf: pessoa.cpf,
+      fotoPerfil: pessoa.fotoPerfil,
+      enderecoId: pessoa.enderecoId,
+      email: pessoa.email,
+      senha: senhaHash,
+    );
+
     await database.transaction(
       (transaction) async {
         final pessoaId = await transaction.insert(
           'pessoa',
-          pessoa.toMap(),
+          pessoaComSenhaHash.toMap(),
         );
 
         await transaction.insert(
@@ -29,5 +46,38 @@ class AuthRepository {
         );
       },
     );
+  }
+
+  Future<Pessoa?> login({
+  required String email,
+  required String senha,
+  }) async {
+    final database = await AppDatabase.database;
+
+    final resultado = await database.query(
+      'pessoa',
+      where: 'email = ?',
+      whereArgs: [email],
+      limit: 1,
+    );
+
+    if (resultado.isEmpty) {
+      return null;
+    }
+
+    final pessoa = Pessoa.fromMap(
+      resultado.first,
+    );
+
+    final senhaValida = PasswordHasher.verify(
+      password: senha,
+      hashedPassword: pessoa.senha,
+    );
+
+    if (!senhaValida) {
+      return null;
+    }
+
+    return pessoa;
   }
 }

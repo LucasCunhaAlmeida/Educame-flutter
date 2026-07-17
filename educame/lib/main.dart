@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'features/login/login_page.dart';
+import 'features/login/view/login_page.dart';
 
 void main() {
   runApp(const EducameApp());
