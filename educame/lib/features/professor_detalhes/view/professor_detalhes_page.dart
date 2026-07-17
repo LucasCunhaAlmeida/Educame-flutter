@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/routes/app_router.dart';
-import '../../data/models/avaliacao.dart';
-import '../../data/models/disponibilidade.dart';
-import '../../data/models/professor.dart';
-import 'professor_detalhes_viewmodel.dart';
+import '../../../core/routes/app_router.dart';
+import '../../../data/models/avaliacao.dart';
+import '../../../data/models/disponibilidade.dart';
+import '../../../data/models/professor.dart';
+import '../viewmodel/professor_detalhes_viewmodel.dart';
 
 class ProfessorDetalhesPage extends StatelessWidget {
   final int professorId;

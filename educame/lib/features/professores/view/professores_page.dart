@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/routes/app_router.dart';
-import '../../core/widgets/app_bottom_nav_bar.dart';
-import '../../data/models/disciplina.dart';
-import '../../data/models/professor.dart';
-import 'professor_viewmodel.dart';
+import '../../../core/routes/app_router.dart';
+import '../../../core/widgets/app_bottom_nav_bar.dart';
+import '../../../data/models/disciplina.dart';
+import '../../../data/models/professor.dart';
+import '../viewmodel/professor_viewmodel.dart';
 
 class ProfessoresPage extends StatefulWidget {
   const ProfessoresPage({super.key});

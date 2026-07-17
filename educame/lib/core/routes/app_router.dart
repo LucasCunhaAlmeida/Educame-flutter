@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../../data/repositories/avaliacao_repository.dart';
 import '../../data/repositories/disponibilidade_repository.dart';
 import '../../data/repositories/professor_repository.dart';
-import '../../features/home/home_page.dart';
+import '../../features/home/view/home_page.dart';
 import '../../features/login/view/login_page.dart';
 import '../../features/mensagens/mensagens_page.dart';
 import '../../features/perfil/view/perfil_page.dart';

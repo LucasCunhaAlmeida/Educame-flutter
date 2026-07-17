@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 
-import '../../data/models/professor.dart';
-import '../../data/repositories/professor_repository.dart';
+import '../../../core/session/session_manager.dart';
+import '../../../data/models/professor.dart';
+import '../../../data/repositories/professor_repository.dart';
 
 class HomeViewModel extends ChangeNotifier {
   final ProfessorRepository _professorRepository;
@@ -17,6 +18,11 @@ class HomeViewModel extends ChangeNotifier {
   List<Professor> get professoresDestaque => _professoresDestaque;
   bool get carregando => _carregando;
   String? get erro => _erro;
+  String get nomeUsuario {
+    final nome = SessionManager.usuarioAtual?.nomeFormatado;
+    return nome == null || nome.isEmpty ? 'Aluno' : nome;
+  }
+
   bool get semDestaques =>
       !_carregando && _erro == null && _professoresDestaque.isEmpty;
 
