@@ -39,6 +39,38 @@ class PerfilRepository {
     return Endereco.fromMap(resultado.first);
   }
 
+  Future<void> atualizarCpf({
+    required int pessoaId,
+    required String cpf,
+  }) async {
+    final database = await AppDatabase.database;
+
+    await database.update(
+      'pessoa',
+      {
+        'cpf': cpf,
+      },
+      where: "id = ? AND (cpf IS NULL OR TRIM(cpf) = '')",
+      whereArgs: [pessoaId],
+    );
+  }
+
+  Future<void> atualizarGenero({
+    required int pessoaId,
+    required String genero,
+  }) async {
+    final database = await AppDatabase.database;
+
+    await database.update(
+      'pessoa',
+      {
+        'genero': genero,
+      },
+      where: 'id = ?',
+      whereArgs: [pessoaId],
+    );
+  }
+
   Future<void> atualizarEndereco({
     required int enderecoId,
     required String rua,

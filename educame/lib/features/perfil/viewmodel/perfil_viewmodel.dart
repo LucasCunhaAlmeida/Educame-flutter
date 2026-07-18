@@ -125,6 +125,48 @@ class PerfilViewModel extends ChangeNotifier {
     await carregarDadosPessoais();
   }
 
+  Future<void> salvarCpf(String cpf) async {
+    final usuario = _usuario ?? SessionManager.usuarioAtual;
+
+    if (usuario == null) {
+      throw Exception('Usuario nao autenticado.');
+    }
+
+    if (usuario.id == null) {
+      throw Exception('Usuario invalido.');
+    }
+
+    if (usuario.cpf != null && usuario.cpf!.trim().isNotEmpty) {
+      throw Exception('CPF ja cadastrado.');
+    }
+
+    await _perfilRepository.atualizarCpf(
+      pessoaId: usuario.id!,
+      cpf: cpf,
+    );
+
+    await carregarDadosPessoais();
+  }
+
+  Future<void> salvarGenero(String genero) async {
+    final usuario = _usuario ?? SessionManager.usuarioAtual;
+
+    if (usuario == null) {
+      throw Exception('Usuario nao autenticado.');
+    }
+
+    if (usuario.id == null) {
+      throw Exception('Usuario invalido.');
+    }
+
+    await _perfilRepository.atualizarGenero(
+      pessoaId: usuario.id!,
+      genero: genero,
+    );
+
+    await carregarDadosPessoais();
+  }
+
   Future<void> logout() async {
     await _authRepository.logout();
   }

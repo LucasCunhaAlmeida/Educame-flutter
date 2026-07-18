@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../data/models/endereco.dart';
-import '../../../data/models/pessoa.dart';
-import '../../../data/repositories/perfil_repository.dart';
 import '../viewmodel/perfil_viewmodel.dart';
 
 class DadosPessoaisPage extends StatefulWidget {
@@ -20,8 +18,20 @@ class DadosPessoaisPage extends StatefulWidget {
 }
 
 class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
+  static const List<String> _opcoesGenero = [
+    'Homem',
+    'Mulher',
+    'Transgênero',
+    'Não-binário',
+    'Agênero',
+    'Gênero fluido',
+    'Bigênero',
+    'Pangênero',
+  ];
+
   bool _alterandoEndereco = false;
 
+  late final TextEditingController _cpfController;
   late final TextEditingController _ruaController;
   late final TextEditingController _numeroController;
   late final TextEditingController _complementoController;
@@ -35,6 +45,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
   void initState() {
     super.initState();
 
+    _cpfController = TextEditingController();
     _ruaController = TextEditingController();
     _numeroController = TextEditingController();
     _complementoController = TextEditingController();
@@ -70,6 +81,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
 
   @override
   void dispose() {
+    _cpfController.dispose();
     _ruaController.dispose();
     _numeroController.dispose();
     _complementoController.dispose();
@@ -86,6 +98,231 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
     setState(() {
       _alterandoEndereco = !_alterandoEndereco;
     });
+  }
+
+  Future<void> _abrirCadastroCpf() async {
+    _cpfController.clear();
+
+    final cpf = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(18),
+        ),
+      ),
+      builder: (sheetContext) {
+        return Padding(
+          padding: EdgeInsets.fromLTRB(
+            24,
+            24,
+            24,
+            MediaQuery.of(sheetContext).viewInsets.bottom + 24,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Cadastrar CPF',
+                style: TextStyle(
+                  color: DadosPessoaisPage.darkBlue,
+                  fontSize: 21,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 18),
+              TextField(
+                controller: _cpfController,
+                autofocus: true,
+                keyboardType: TextInputType.number,
+                style: const TextStyle(
+                  color: DadosPessoaisPage.darkBlue,
+                  fontSize: 17,
+                ),
+                decoration: InputDecoration(
+                  labelText: 'CPF',
+                  prefixIcon: const Icon(
+                    Icons.badge_outlined,
+                    color: DadosPessoaisPage.primaryBlue,
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(
+                      color: DadosPessoaisPage.borderGray,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(
+                      color: DadosPessoaisPage.borderGray,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(
+                      color: DadosPessoaisPage.primaryBlue,
+                      width: 2,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        Navigator.pop(sheetContext);
+                      },
+                      child: const Text('Cancelar'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(
+                          sheetContext,
+                          _cpfController.text.trim(),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: DadosPessoaisPage.primaryBlue,
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Text('Salvar'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (cpf == null || cpf.isEmpty || !mounted) {
+      return;
+    }
+
+    final viewModel = context.read<PerfilViewModel>();
+
+    try {
+      await viewModel.salvarCpf(cpf);
+
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('CPF salvo com sucesso!'),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao salvar CPF: $e'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _abrirSeletorGenero(String? generoAtual) async {
+    final generoSelecionado = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        var generoTemporario = _opcoesGenero.contains(generoAtual)
+            ? generoAtual
+            : _opcoesGenero.first;
+
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text('Alterar gênero'),
+              content: DropdownButtonFormField<String>(
+                value: generoTemporario,
+                decoration: const InputDecoration(
+                  labelText: 'Gênero',
+                  prefixIcon: Icon(Icons.wc_outlined),
+                ),
+                items: _opcoesGenero
+                    .map(
+                      (genero) => DropdownMenuItem<String>(
+                        value: genero,
+                        child: Text(genero),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (genero) {
+                  if (genero == null) {
+                    return;
+                  }
+
+                  setDialogState(() {
+                    generoTemporario = genero;
+                  });
+                },
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(dialogContext);
+                  },
+                  child: const Text('Cancelar'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(dialogContext, generoTemporario);
+                  },
+                  child: const Text('Salvar'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    if (generoSelecionado == null ||
+        generoSelecionado == generoAtual ||
+        !mounted) {
+      return;
+    }
+
+    final viewModel = context.read<PerfilViewModel>();
+
+    try {
+      await viewModel.salvarGenero(generoSelecionado);
+
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Gênero salvo com sucesso!'),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao salvar gênero: $e'),
+        ),
+      );
+    }
   }
 
   Future<void> _salvarEndereco() async {
@@ -170,6 +407,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
       builder: (context, viewModel, child) {
         final usuario = viewModel.usuario;
         final endereco = viewModel.endereco;
+        final possuiCpf = usuario?.cpf?.trim().isNotEmpty ?? false;
 
         if (viewModel.carregando) {
           return const Scaffold(
@@ -260,6 +498,14 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
                         value: _valorOuNaoInformado(
                           usuario?.cpf,
                         ),
+                        trailing: possuiCpf
+                            ? null
+                            : IconButton(
+                                onPressed: _abrirCadastroCpf,
+                                icon: const Icon(Icons.edit_outlined),
+                                color: DadosPessoaisPage.primaryBlue,
+                                tooltip: 'Cadastrar CPF',
+                              ),
                       ),
 
                       const _InfoDivider(),
@@ -269,6 +515,14 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
                         label: 'Gênero',
                         value: _valorOuNaoInformado(
                           usuario?.genero,
+                        ),
+                        trailing: IconButton(
+                          onPressed: () {
+                            _abrirSeletorGenero(usuario?.genero);
+                          },
+                          icon: const Icon(Icons.edit_outlined),
+                          color: DadosPessoaisPage.primaryBlue,
+                          tooltip: 'Alterar genero',
                         ),
                       ),
                     ],
@@ -462,11 +716,13 @@ class _InfoItem extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
+  final Widget? trailing;
 
   const _InfoItem({
     required this.icon,
     required this.label,
     required this.value,
+    this.trailing,
   });
 
   @override
@@ -520,6 +776,11 @@ class _InfoItem extends StatelessWidget {
               ],
             ),
           ),
+
+          if (trailing != null) ...[
+            const SizedBox(width: 8),
+            trailing!,
+          ],
         ],
       ),
     );
