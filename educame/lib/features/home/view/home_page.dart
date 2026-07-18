@@ -1,10 +1,11 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/routes/app_router.dart';
 import '../../../core/widgets/app_bottom_nav_bar.dart';
 import '../../../data/models/professor.dart';
+import '../../../data/repositories/aula_repository.dart';
 import '../viewmodel/home_viewmodel.dart';
 
 class HomePage extends StatelessWidget {
@@ -41,8 +42,9 @@ class HomePage extends StatelessWidget {
 
               _SectionHeader(
                 icon: Icons.calendar_today_outlined,
-                title: 'Próximas aulas',
+                title: 'Proximas aulas',
                 actionText: 'Ver todas',
+                onActionTap: () => context.push(AppRoutes.aulasFuturas),
               ),
 
               const SizedBox(height: 8),
@@ -58,59 +60,7 @@ class HomePage extends StatelessWidget {
 
               const SizedBox(height: 26),
 
-              const _ClassCard(
-                title: 'Matemática',
-                teacher: 'Prof. Rafael Lima',
-                type: 'Aula online',
-                date: 'Seg, 20/05',
-                time: '14:00',
-                icon: Icons.calculate_outlined,
-                iconColor: primaryBlue,
-                backgroundColor: Color(0xFFEAF2FF),
-              ),
-
-              const SizedBox(height: 14),
-
-              const _ClassCard(
-                title: 'Física',
-                teacher: 'Profa. Camila Souza',
-                type: 'Aula online',
-                date: 'Qua, 22/05',
-                time: '16:30',
-                icon: Icons.science_outlined,
-                iconColor: Color(0xFF18C56E),
-                backgroundColor: Color(0xFFE9F9F0),
-              ),
-
-              const SizedBox(height: 14),
-
-              const _ClassCard(
-                title: 'Química',
-                teacher: 'Prof. João Pedro',
-                type: 'Aula online',
-                date: 'Sex, 24/05',
-                time: '10:00',
-                icon: Icons.menu_book_outlined,
-                iconColor: Color(0xFF7B3DFF),
-                backgroundColor: Color(0xFFF1EAFE),
-              ),
-
-              const SizedBox(height: 14),
-
-              const _ClassCard(
-                title: 'Inglês',
-                teacher: 'Profa. Mariana Alves',
-                type: 'Aula online',
-                date: 'Sáb, 25/05',
-                time: '11:00',
-                icon: Icons.translate_outlined,
-                iconColor: Color(0xFFFF9900),
-                backgroundColor: Color(0xFFFFF4DF),
-              ),
-
-              const SizedBox(height: 20),
-
-              const _EmptyScheduleCard(),
+              const _UpcomingClassesSection(),
 
               const SizedBox(height: 46),
 
@@ -118,6 +68,7 @@ class HomePage extends StatelessWidget {
                 icon: Icons.auto_stories_outlined,
                 title: 'Explorar disciplinas',
                 actionText: 'Ver todas',
+                onActionTap: () => context.go(AppRoutes.professores),
               ),
 
               const SizedBox(height: 28),
@@ -152,7 +103,7 @@ class _Header extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Olá, $nomeUsuario!',
+                'Olá, $nomeUsuario',
                 style: const TextStyle(
                   color: HomePage.darkBlue,
                   fontSize: 31,
@@ -406,7 +357,7 @@ class _FeaturedProfessorCard extends StatelessWidget {
                 const Align(
                   alignment: Alignment.centerRight,
                   child: Text(
-                    'Ver perfil →',
+                    'Ver perfil’',
                     style: TextStyle(
                       color: HomePage.primaryBlue,
                       fontWeight: FontWeight.w700,
@@ -426,11 +377,13 @@ class _SectionHeader extends StatelessWidget {
   final IconData icon;
   final String title;
   final String actionText;
+  final VoidCallback? onActionTap;
 
   const _SectionHeader({
     required this.icon,
     required this.title,
     required this.actionText,
+    this.onActionTap,
   });
 
   @override
@@ -449,15 +402,52 @@ class _SectionHeader extends StatelessWidget {
             ),
           ),
         ),
-        Text(
-          actionText,
-          style: const TextStyle(
-            color: HomePage.primaryBlue,
-            fontSize: 17,
-            fontWeight: FontWeight.w600,
+        TextButton(
+          onPressed: onActionTap,
+          child: Text(
+            actionText,
+            style: const TextStyle(
+              color: HomePage.primaryBlue,
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ],
+    );
+  }
+}
+
+class _UpcomingClassesSection extends StatelessWidget {
+  const _UpcomingClassesSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<HomeViewModel>(
+      builder: (context, viewModel, child) {
+        if (viewModel.carregando && viewModel.proximasAulas.isEmpty) {
+          return const SizedBox(
+            height: 120,
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (viewModel.semProximasAulas) {
+          return const _EmptyScheduleCard();
+        }
+
+        return Column(
+          children: [
+            for (var index = 0; index < viewModel.proximasAulas.length; index++)
+              Padding(
+                padding: EdgeInsets.only(
+                  bottom: index == viewModel.proximasAulas.length - 1 ? 0 : 14,
+                ),
+                child: _ClassCard.fromAula(viewModel.proximasAulas[index]),
+              ),
+          ],
+        );
+      },
     );
   }
 }
@@ -482,6 +472,35 @@ class _ClassCard extends StatelessWidget {
     required this.iconColor,
     required this.backgroundColor,
   });
+
+  factory _ClassCard.fromAula(AulaDetalhada aula) {
+    return _ClassCard(
+      title: aula.disciplina,
+      teacher: aula.professor,
+      type: aula.aula.modalidade.toLowerCase() == 'online'
+          ? 'Aula online'
+          : aula.aula.modalidade,
+      date: _formatDate(aula.aula.inicio),
+      time: _formatTime(aula.aula.inicio),
+      icon: Icons.menu_book_outlined,
+      iconColor: HomePage.primaryBlue,
+      backgroundColor: HomePage.lightBlue,
+    );
+  }
+
+  static String _formatDate(DateTime date) {
+    final weekdays = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab', 'Dom'];
+    final weekday = weekdays[date.weekday - 1];
+    final day = date.day.toString().padLeft(2, '0');
+    final month = date.month.toString().padLeft(2, '0');
+    return '$weekday, $day/$month';
+  }
+
+  static String _formatTime(DateTime date) {
+    final hour = date.hour.toString().padLeft(2, '0');
+    final minute = date.minute.toString().padLeft(2, '0');
+    return '$hour:$minute';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -555,7 +574,7 @@ class _ClassCard extends StatelessWidget {
                       ],
                     ),
                     Text(
-                      '$date • $time',
+                      '$date â€¢ $time',
                       style: const TextStyle(
                         color: HomePage.primaryBlue,
                         fontSize: 14,
@@ -652,37 +671,37 @@ class _SubjectsList extends StatelessWidget {
   Widget build(BuildContext context) {
     final subjects = [
       _SubjectItem(
-        title: 'Matemática',
+        title: 'MatemÃ¡tica',
         icon: Icons.calculate_outlined,
         iconColor: HomePage.primaryBlue,
         backgroundColor: const Color(0xFFEAF2FF),
       ),
       _SubjectItem(
-        title: 'Física',
+        title: 'FÃ­sica',
         icon: Icons.science_outlined,
         iconColor: const Color(0xFF18C56E),
         backgroundColor: const Color(0xFFE9F9F0),
       ),
       _SubjectItem(
-        title: 'Química',
+        title: 'QuÃ­mica',
         icon: Icons.menu_book_outlined,
         iconColor: const Color(0xFF7B3DFF),
         backgroundColor: const Color(0xFFF1EAFE),
       ),
       _SubjectItem(
-        title: 'Inglês',
+        title: 'InglÃªs',
         icon: Icons.translate_outlined,
         iconColor: const Color(0xFFFF9900),
         backgroundColor: const Color(0xFFFFF4DF),
       ),
       _SubjectItem(
-        title: 'Programação',
+        title: 'ProgramaÃ§Ã£o',
         icon: Icons.code,
         iconColor: HomePage.primaryBlue,
         backgroundColor: const Color(0xFFF0F5FF),
       ),
       _SubjectItem(
-        title: 'Redação',
+        title: 'RedaÃ§Ã£o',
         icon: Icons.edit_outlined,
         iconColor: const Color(0xFFFF3B3B),
         backgroundColor: const Color(0xFFFFEEEE),
@@ -753,60 +772,66 @@ class _HistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: HomePage.borderGray, width: 1),
+    return Material(
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
+        side: const BorderSide(color: HomePage.borderGray),
       ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: HomePage.lightBlue,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.history,
-              color: HomePage.primaryBlue,
-              size: 30,
-            ),
-          ),
-          const SizedBox(width: 14),
-          const Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Histórico de aulas',
-                  style: TextStyle(
-                    color: HomePage.darkBlue,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                  ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: () => context.push(AppRoutes.historicoAulas),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: HomePage.lightBlue,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                SizedBox(height: 8),
-                Text(
-                  'Veja suas aulas anteriores e revisite os detalhes.',
-                  style: TextStyle(
-                    color: HomePage.textGray,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                  ),
+                child: const Icon(
+                  Icons.history,
+                  color: HomePage.primaryBlue,
+                  size: 30,
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 14),
+              const Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Histórico de aulas',
+                      style: TextStyle(
+                        color: HomePage.darkBlue,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Veja suas aulas anteriores e revisite os detalhes.',
+                      style: TextStyle(
+                        color: HomePage.textGray,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.chevron_right,
+                color: HomePage.primaryBlue,
+                size: 30,
+              ),
+            ],
           ),
-          const Icon(
-            Icons.chevron_right,
-            color: HomePage.primaryBlue,
-            size: 30,
-          ),
-        ],
+        ),
       ),
     );
   }

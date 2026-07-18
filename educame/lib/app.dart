@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'core/routes/app_router.dart';
 
 import 'data/repositories/auth_repository.dart';
+import 'data/repositories/aula_repository.dart';
 import 'data/repositories/avaliacao_repository.dart';
 import 'data/repositories/disciplina_repository.dart';
 import 'data/repositories/disponibilidade_repository.dart';
@@ -20,6 +21,7 @@ class EducameApp extends StatefulWidget {
   final DisciplinaRepository? disciplinaRepository;
   final DisponibilidadeRepository? disponibilidadeRepository;
   final AvaliacaoRepository? avaliacaoRepository;
+  final AulaRepository? aulaRepository;
 
   const EducameApp({
     super.key,
@@ -27,6 +29,7 @@ class EducameApp extends StatefulWidget {
     this.disciplinaRepository,
     this.disponibilidadeRepository,
     this.avaliacaoRepository,
+    this.aulaRepository,
   });
 
   @override
@@ -41,6 +44,7 @@ class _EducameAppState extends State<EducameApp> {
   late final DisciplinaRepository _disciplinaRepository;
   late final DisponibilidadeRepository _disponibilidadeRepository;
   late final AvaliacaoRepository _avaliacaoRepository;
+  late final AulaRepository _aulaRepository;
 
   late final GoRouter _router;
 
@@ -64,10 +68,13 @@ class _EducameAppState extends State<EducameApp> {
     _avaliacaoRepository =
         widget.avaliacaoRepository ?? AvaliacaoRepository();
 
+    _aulaRepository = widget.aulaRepository ?? AulaRepository();
+
     _router = createAppRouter(
       professorRepository: _professorRepository,
       avaliacaoRepository: _avaliacaoRepository,
       disponibilidadeRepository: _disponibilidadeRepository,
+      aulaRepository: _aulaRepository,
     );
   }
 
@@ -105,10 +112,15 @@ class _EducameAppState extends State<EducameApp> {
           value: _avaliacaoRepository,
         ),
 
+        Provider.value(
+          value: _aulaRepository,
+        ),
+
         ChangeNotifierProvider(
           create: (_) =>
               HomeViewModel(
                 professorRepository: _professorRepository,
+                aulaRepository: _aulaRepository,
               )..carregar(),
         ),
 
