@@ -126,15 +126,7 @@ class PerfilViewModel extends ChangeNotifier {
   }
 
   Future<void> salvarCpf(String cpf) async {
-    final usuario = _usuario ?? SessionManager.usuarioAtual;
-
-    if (usuario == null) {
-      throw Exception('Usuario nao autenticado.');
-    }
-
-    if (usuario.id == null) {
-      throw Exception('Usuario invalido.');
-    }
+    final usuario = _obterUsuarioValido();
 
     if (usuario.cpf != null && usuario.cpf!.trim().isNotEmpty) {
       throw Exception('CPF ja cadastrado.');
@@ -149,6 +141,47 @@ class PerfilViewModel extends ChangeNotifier {
   }
 
   Future<void> salvarGenero(String genero) async {
+    final usuario = _obterUsuarioValido();
+
+    await _perfilRepository.atualizarGenero(
+      pessoaId: usuario.id!,
+      genero: genero,
+    );
+
+    await carregarDadosPessoais();
+  }
+
+  Future<void> salvarNovaSenha(String novaSenha) async {
+    final usuario = _obterUsuarioValido();
+
+    if (novaSenha.length < 6) {
+      throw Exception('A senha deve ter pelo menos 6 caracteres.');
+    }
+
+    await _perfilRepository.atualizarSenha(
+      pessoaId: usuario.id!,
+      novaSenha: novaSenha,
+    );
+
+    await carregarDadosPessoais();
+  }
+
+  Future<void> salvarFotoPerfil(String fotoPerfil) async {
+    final usuario = _obterUsuarioValido();
+
+    await _perfilRepository.atualizarFotoPerfil(
+      pessoaId: usuario.id!,
+      fotoPerfil: fotoPerfil,
+    );
+
+    await carregarDadosPessoais();
+  }
+
+  Future<void> logout() async {
+    await _authRepository.logout();
+  }
+
+  Pessoa _obterUsuarioValido() {
     final usuario = _usuario ?? SessionManager.usuarioAtual;
 
     if (usuario == null) {
@@ -159,15 +192,6 @@ class PerfilViewModel extends ChangeNotifier {
       throw Exception('Usuario invalido.');
     }
 
-    await _perfilRepository.atualizarGenero(
-      pessoaId: usuario.id!,
-      genero: genero,
-    );
-
-    await carregarDadosPessoais();
-  }
-
-  Future<void> logout() async {
-    await _authRepository.logout();
+    return usuario;
   }
 }

@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 
+import '../../core/security/password_hasher.dart';
 import '../app_database.dart';
 import '../models/endereco.dart';
 import '../models/pessoa.dart';
@@ -65,6 +66,38 @@ class PerfilRepository {
       'pessoa',
       {
         'genero': genero,
+      },
+      where: 'id = ?',
+      whereArgs: [pessoaId],
+    );
+  }
+
+  Future<void> atualizarSenha({
+    required int pessoaId,
+    required String novaSenha,
+  }) async {
+    final database = await AppDatabase.database;
+
+    await database.update(
+      'pessoa',
+      {
+        'senha': PasswordHasher.hash(novaSenha),
+      },
+      where: 'id = ?',
+      whereArgs: [pessoaId],
+    );
+  }
+
+  Future<void> atualizarFotoPerfil({
+    required int pessoaId,
+    required String fotoPerfil,
+  }) async {
+    final database = await AppDatabase.database;
+
+    await database.update(
+      'pessoa',
+      {
+        'foto_perfil': fotoPerfil,
       },
       where: 'id = ?',
       whereArgs: [pessoaId],

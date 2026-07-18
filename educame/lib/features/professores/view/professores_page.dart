@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -318,7 +319,10 @@ class _ProfessorCard extends StatelessWidget {
                 foregroundColor: _ProfessoresPageState.primaryBlue,
                 backgroundImage: professor.pessoa.fotoPerfil == null
                     ? null
-                    : NetworkImage(professor.pessoa.fotoPerfil!),
+                    : professor.pessoa.fotoPerfil!.startsWith('http')
+                        ? NetworkImage(professor.pessoa.fotoPerfil!)
+                        : FileImage(File(professor.pessoa.fotoPerfil!))
+                            as ImageProvider,
                 child: professor.pessoa.fotoPerfil == null
                     ? Text(
                         professor.iniciais,

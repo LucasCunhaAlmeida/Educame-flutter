@@ -1,11 +1,15 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../core/widgets/app_bottom_nav_bar.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../data/repositories/perfil_repository.dart';
 import '../../login/view/login_page.dart';
-import '../viewmodel/perfil_viewmodel.dart';
 import '../view/dados_pessoais_page.dart';
+import '../viewmodel/perfil_viewmodel.dart';
+import 'seguranca_page.dart';
 
 class PerfilPage extends StatefulWidget {
   const PerfilPage({super.key});
@@ -31,6 +35,13 @@ class _PerfilPageState extends State<PerfilPage> {
       authRepository: AuthRepository(),
       perfilRepository: PerfilRepository(),
     );
+    _viewModel.carregarDadosPessoais();
+  }
+
+  @override
+  void dispose() {
+    _viewModel.dispose();
+    super.dispose();
   }
 
   Future<void> _logout() async {
@@ -51,91 +62,89 @@ class _PerfilPageState extends State<PerfilPage> {
 
   void _abrirDadosPessoais() {
     Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (_) => const DadosPessoaisPage(),
-    ),
-  );
+      context,
+      MaterialPageRoute(
+        builder: (_) => ChangeNotifierProvider<PerfilViewModel>.value(
+          value: _viewModel,
+          child: const DadosPessoaisPage(),
+        ),
+      ),
+    ).then((_) {
+      _viewModel.carregarDadosPessoais();
+    });
+  }
+
+  void _abrirSeguranca() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ChangeNotifierProvider<PerfilViewModel>.value(
+          value: _viewModel,
+          child: const SegurancaPage(),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      bottomNavigationBar: const AppBottomNavBar(
-        currentIndex: 3,
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
-          child: Column(
-            children: [
-              const _TopBar(),
-
-              const SizedBox(height: 34),
-
-              const _ProfileHeader(),
-
-              const SizedBox(height: 30),
-
-              const _StatsCard(),
-
-              const SizedBox(height: 34),
-
-              _ProfileMenuItem(
-                icon: Icons.person_outline,
-                title: 'Dados pessoais',
-                subtitle: 'Gerencie suas informações',
-                onTap: _abrirDadosPessoais,
-              ),
-
-              const _ProfileMenuItem(
-                icon: Icons.notifications_none_outlined,
-                title: 'Notificações',
-                subtitle: 'Configure suas preferências',
-              ),
-
-              const _ProfileMenuItem(
-                icon: Icons.security_outlined,
-                title: 'Segurança',
-                subtitle: 'Senha e privacidade',
-              ),
-
-              const _ProfileMenuItem(
-                icon: Icons.credit_card_outlined,
-                title: 'Pagamentos',
-                subtitle: 'Métodos de pagamento',
-              ),
-
-              const _ProfileMenuItem(
-                icon: Icons.help_outline,
-                title: 'Ajuda e suporte',
-                subtitle: 'Dúvidas e atendimento',
-              ),
-
-              _ProfileMenuItem(
-                icon: Icons.logout_outlined,
-                title: 'Sair da conta',
-                subtitle: 'Encerrar sessão',
-                onTap: _logout,
-              ),
-
-              const SizedBox(height: 24),
-
-              const Text(
-                'Versão 1.0.0',
-                style: TextStyle(
-                  color: PerfilPage.textGray,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-
-              const SizedBox(height: 8),
-            ],
+    return AnimatedBuilder(
+      animation: _viewModel,
+      builder: (context, child) {
+        return Scaffold(
+          backgroundColor: Colors.white,
+          bottomNavigationBar: const AppBottomNavBar(
+            currentIndex: 3,
           ),
-        ),
-      ),
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
+              child: Column(
+                children: [
+                  const _TopBar(),
+                  const SizedBox(height: 34),
+                  _ProfileHeader(
+                    nome: _viewModel.nomeUsuario,
+                    email: _viewModel.emailUsuario,
+                    fotoPerfil: _viewModel.usuario?.fotoPerfil,
+                  ),
+                  const SizedBox(height: 30),
+                  const _StatsCard(),
+                  const SizedBox(height: 34),
+                  _ProfileMenuItem(
+                    icon: Icons.person_outline,
+                    title: 'Dados pessoais',
+                    subtitle: 'Gerencie suas informacoes',
+                    onTap: _abrirDadosPessoais,
+                  ),
+                  _ProfileMenuItem(
+                    icon: Icons.security_outlined,
+                    title: 'Seguranca',
+                    subtitle: 'Alterar senha',
+                    onTap: _abrirSeguranca,
+                  ),
+                  _ProfileMenuItem(
+                    icon: Icons.logout_outlined,
+                    title: 'Sair da conta',
+                    subtitle: 'Encerrar sessao',
+                    onTap: _logout,
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Versao 1.0.0',
+                    style: TextStyle(
+                      color: PerfilPage.textGray,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -167,7 +176,15 @@ class _TopBar extends StatelessWidget {
 }
 
 class _ProfileHeader extends StatelessWidget {
-  const _ProfileHeader();
+  final String nome;
+  final String email;
+  final String? fotoPerfil;
+
+  const _ProfileHeader({
+    required this.nome,
+    required this.email,
+    required this.fotoPerfil,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -183,11 +200,25 @@ class _ProfileHeader extends StatelessWidget {
                 shape: BoxShape.circle,
                 color: PerfilPage.lightBlue,
               ),
-              child: const Icon(
-                Icons.person,
-                color: PerfilPage.primaryBlue,
-                size: 78,
-              ),
+              child: fotoPerfil == null || fotoPerfil!.isEmpty
+                  ? const Icon(
+                      Icons.person,
+                      color: PerfilPage.primaryBlue,
+                      size: 78,
+                    )
+                  : ClipOval(
+                      child: Image.file(
+                        File(fotoPerfil!),
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(
+                            Icons.person,
+                            color: PerfilPage.primaryBlue,
+                            size: 78,
+                          );
+                        },
+                      ),
+                    ),
             ),
             Positioned(
               right: -2,
@@ -212,23 +243,21 @@ class _ProfileHeader extends StatelessWidget {
             ),
           ],
         ),
-
         const SizedBox(height: 22),
-
-        const Text(
-          'Ana Clara',
-          style: TextStyle(
+        Text(
+          nome,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
             color: PerfilPage.darkBlue,
             fontSize: 30,
             fontWeight: FontWeight.w800,
           ),
         ),
-
         const SizedBox(height: 6),
-
-        const Text(
-          'anaclara@email.com',
-          style: TextStyle(
+        Text(
+          email,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
             color: PerfilPage.textGray,
             fontSize: 18,
             fontWeight: FontWeight.w400,
@@ -309,9 +338,7 @@ class _StatItem extends StatelessWidget {
           color: PerfilPage.primaryBlue,
           size: 34,
         ),
-
         const SizedBox(height: 18),
-
         Text(
           number,
           style: const TextStyle(
@@ -320,9 +347,7 @@ class _StatItem extends StatelessWidget {
             fontWeight: FontWeight.w800,
           ),
         ),
-
         const SizedBox(height: 6),
-
         Text(
           label,
           textAlign: TextAlign.center,
@@ -398,9 +423,7 @@ class _ProfileMenuItem extends StatelessWidget {
                 size: 30,
               ),
             ),
-
             const SizedBox(width: 22),
-
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -414,9 +437,7 @@ class _ProfileMenuItem extends StatelessWidget {
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-
                   const SizedBox(height: 7),
-
                   Text(
                     subtitle,
                     maxLines: 2,
@@ -430,7 +451,6 @@ class _ProfileMenuItem extends StatelessWidget {
                 ],
               ),
             ),
-
             const Icon(
               Icons.chevron_right,
               color: PerfilPage.textGray,

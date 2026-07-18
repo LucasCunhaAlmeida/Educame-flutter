@@ -1,4 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../../data/models/endereco.dart';
@@ -30,6 +35,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
   ];
 
   bool _alterandoEndereco = false;
+  final ImagePicker _imagePicker = ImagePicker();
 
   late final TextEditingController _cpfController;
   late final TextEditingController _ruaController;
@@ -382,6 +388,61 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
     );
   }
 
+  Future<void> _selecionarFotoPerfil() async {
+    try {
+      final imagemSelecionada = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+      );
+
+      if (imagemSelecionada == null || !mounted) {
+        return;
+      }
+
+      final diretorioDocumentos = await getApplicationDocumentsDirectory();
+      final diretorioFotos = Directory(
+        path.join(diretorioDocumentos.path, 'profile_images'),
+      );
+
+      if (!await diretorioFotos.exists()) {
+        await diretorioFotos.create(recursive: true);
+      }
+
+      final extensao = path.extension(imagemSelecionada.path);
+      final nomeArquivo =
+          'perfil_${DateTime.now().millisecondsSinceEpoch}$extensao';
+      final destino = path.join(diretorioFotos.path, nomeArquivo);
+
+      await File(imagemSelecionada.path).copy(destino);
+
+      if (!mounted) {
+        return;
+      }
+
+      await context.read<PerfilViewModel>().salvarFotoPerfil(destino);
+
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Foto de perfil atualizada!'),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao alterar foto: $e'),
+        ),
+      );
+    }
+  }
+
   String _formatarData(DateTime? data) {
     if (data == null) {
       return 'Não informado';
@@ -449,7 +510,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
                 children: [
                   _ProfileImageSection(
                     fotoPerfil: usuario?.fotoPerfil,
-                    onAlterarFoto: _alterarFotoPerfil,
+                    onAlterarFoto: _selecionarFotoPerfil,
                   ),
 
                   const SizedBox(height: 36),
@@ -598,9 +659,16 @@ class _ProfileImageSection extends StatelessWidget {
                         size: 82,
                       )
                     : ClipOval(
-                        child: Image.asset(
-                          fotoPerfil!,
+                        child: Image.file(
+                          File(fotoPerfil!),
                           fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.person,
+                              color: DadosPessoaisPage.primaryBlue,
+                              size: 82,
+                            );
+                          },
                         ),
                       ),
               ),
