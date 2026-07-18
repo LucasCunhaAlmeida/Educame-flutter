@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../../core/widgets/app_bottom_nav_bar.dart';
 import '../../../data/repositories/auth_repository.dart';
+import '../../../data/repositories/perfil_repository.dart';
 import '../../login/view/login_page.dart';
-import '../viewmodel/perfil_view_model.dart';
+import '../viewmodel/perfil_viewmodel.dart';
+import '../view/dados_pessoais_page.dart';
 
 class PerfilPage extends StatefulWidget {
   const PerfilPage({super.key});
@@ -27,6 +29,7 @@ class _PerfilPageState extends State<PerfilPage> {
 
     _viewModel = PerfilViewModel(
       authRepository: AuthRepository(),
+      perfilRepository: PerfilRepository(),
     );
   }
 
@@ -44,6 +47,15 @@ class _PerfilPageState extends State<PerfilPage> {
       ),
       (route) => false,
     );
+  }
+
+  void _abrirDadosPessoais() {
+    Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => const DadosPessoaisPage(),
+    ),
+  );
   }
 
   @override
@@ -70,10 +82,11 @@ class _PerfilPageState extends State<PerfilPage> {
 
               const SizedBox(height: 34),
 
-              const _ProfileMenuItem(
+              _ProfileMenuItem(
                 icon: Icons.person_outline,
                 title: 'Dados pessoais',
                 subtitle: 'Gerencie suas informações',
+                onTap: _abrirDadosPessoais,
               ),
 
               const _ProfileMenuItem(
@@ -176,7 +189,6 @@ class _ProfileHeader extends StatelessWidget {
                 size: 78,
               ),
             ),
-
             Positioned(
               right: -2,
               bottom: 8,
@@ -254,9 +266,7 @@ class _StatsCard extends StatelessWidget {
               label: 'Aulas agendadas',
             ),
           ),
-
           _VerticalDivider(),
-
           Expanded(
             child: _StatItem(
               icon: Icons.access_time,
@@ -264,9 +274,7 @@ class _StatsCard extends StatelessWidget {
               label: 'Horas reservadas',
             ),
           ),
-
           _VerticalDivider(),
-
           Expanded(
             child: _StatItem(
               icon: Icons.menu_book_outlined,
@@ -359,6 +367,7 @@ class _ProfileMenuItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
       child: Container(
         constraints: const BoxConstraints(
           minHeight: 98,
