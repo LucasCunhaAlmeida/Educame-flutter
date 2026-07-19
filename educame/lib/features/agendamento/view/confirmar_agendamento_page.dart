@@ -83,9 +83,9 @@ class _ConfirmarAgendamentoPageState extends State<ConfirmarAgendamentoPage> {
               message: viewModel.erro!,
               buttonLabel: 'Tentar novamente',
               onPressed: () => context.read<AgendamentoViewModel>().carregar(
-                    professorId: widget.professorId,
-                    disponibilidadeId: widget.disponibilidadeId,
-                  ),
+                professorId: widget.professorId,
+                disponibilidadeId: widget.disponibilidadeId,
+              ),
             );
           }
 
@@ -138,17 +138,20 @@ class _ConfirmarAgendamentoPageState extends State<ConfirmarAgendamentoPage> {
                       .map(
                         (disciplina) => ChoiceChip(
                           label: Text(disciplina.nome),
-                          selected: viewModel.disciplinaSelecionada?.id ==
+                          selected:
+                              viewModel.disciplinaSelecionada?.id ==
                               disciplina.id,
                           selectedColor: ConfirmarAgendamentoPage.lightBlue,
                           side: BorderSide(
-                            color: viewModel.disciplinaSelecionada?.id ==
+                            color:
+                                viewModel.disciplinaSelecionada?.id ==
                                     disciplina.id
                                 ? ConfirmarAgendamentoPage.primaryBlue
                                 : ConfirmarAgendamentoPage.borderGray,
                           ),
                           labelStyle: TextStyle(
-                            color: viewModel.disciplinaSelecionada?.id ==
+                            color:
+                                viewModel.disciplinaSelecionada?.id ==
                                     disciplina.id
                                 ? ConfirmarAgendamentoPage.primaryBlue
                                 : ConfirmarAgendamentoPage.darkBlue,
@@ -226,12 +229,10 @@ class _ConfirmarAgendamentoPageState extends State<ConfirmarAgendamentoPage> {
                     ? null
                     : () async {
                         await context.read<AgendamentoViewModel>().confirmar(
-                              observacao: _observacaoController.text
-                                      .trim()
-                                      .isEmpty
-                                  ? null
-                                  : _observacaoController.text.trim(),
-                            );
+                          observacao: _observacaoController.text.trim().isEmpty
+                              ? null
+                              : _observacaoController.text.trim(),
+                        );
                       },
                 style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(54),
@@ -298,8 +299,9 @@ class _TeacherCard extends StatelessWidget {
                   professor.especialidades.isEmpty
                       ? 'Professor'
                       : professor.especialidades.first.nome,
-                  style:
-                      const TextStyle(color: ConfirmarAgendamentoPage.textGray),
+                  style: const TextStyle(
+                    color: ConfirmarAgendamentoPage.textGray,
+                  ),
                 ),
               ],
             ),
@@ -372,10 +374,7 @@ class _PaymentPreviewCard extends StatelessWidget {
   final double valor;
   final DateTime vencimento;
 
-  const _PaymentPreviewCard({
-    required this.valor,
-    required this.vencimento,
-  });
+  const _PaymentPreviewCard({required this.valor, required this.vencimento});
 
   @override
   Widget build(BuildContext context) {
@@ -455,7 +454,7 @@ class _SuccessState extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              '$disciplinaNome com $professorNome foi reservado com sucesso.',
+              'Sua aula de $disciplinaNome com $professorNome foi reservada com sucesso.',
               textAlign: TextAlign.center,
               style: const TextStyle(color: ConfirmarAgendamentoPage.textGray),
             ),
@@ -511,10 +510,7 @@ class _FeedbackState extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 18),
-            FilledButton(
-              onPressed: onPressed,
-              child: Text(buttonLabel),
-            ),
+            FilledButton(onPressed: onPressed, child: Text(buttonLabel)),
           ],
         ),
       ),
