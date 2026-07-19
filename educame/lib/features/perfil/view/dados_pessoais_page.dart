@@ -114,9 +114,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
       isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(18),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
       ),
       builder: (sheetContext) {
         return Padding(
@@ -191,10 +189,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.pop(
-                          sheetContext,
-                          _cpfController.text.trim(),
-                        );
+                        Navigator.pop(sheetContext, _cpfController.text.trim());
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: DadosPessoaisPage.primaryBlue,
@@ -224,21 +219,17 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('CPF salvo com sucesso!'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('CPF salvo com sucesso!')));
     } catch (e) {
       if (!mounted) {
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erro ao salvar CPF: $e'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao salvar CPF: $e')));
     }
   }
 
@@ -255,7 +246,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
             return AlertDialog(
               title: const Text('Alterar gênero'),
               content: DropdownButtonFormField<String>(
-                value: generoTemporario,
+                initialValue: generoTemporario,
                 decoration: const InputDecoration(
                   labelText: 'Gênero',
                   prefixIcon: Icon(Icons.wc_outlined),
@@ -314,20 +305,16 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Gênero salvo com sucesso!'),
-        ),
+        const SnackBar(content: Text('Gênero salvo com sucesso!')),
       );
     } catch (e) {
       if (!mounted) {
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erro ao salvar gênero: $e'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao salvar gênero: $e')));
     }
   }
 
@@ -357,33 +344,23 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Endereço salvo com sucesso!',
-          ),
-        ),
+        const SnackBar(content: Text('Endereço salvo com sucesso!')),
       );
     } catch (e) {
       if (!mounted) {
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Erro ao salvar endereço: $e',
-          ),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao salvar endereço: $e')));
     }
   }
 
   void _alterarFotoPerfil() {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text(
-          'A seleção de imagem será implementada posteriormente.',
-        ),
+        content: Text('A seleção de imagem será implementada posteriormente.'),
       ),
     );
   }
@@ -426,20 +403,16 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Foto de perfil atualizada!'),
-        ),
+        const SnackBar(content: Text('Foto de perfil atualizada!')),
       );
     } catch (e) {
       if (!mounted) {
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erro ao alterar foto: $e'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao alterar foto: $e')));
     }
   }
 
@@ -472,9 +445,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
 
         if (viewModel.carregando) {
           return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
+            body: Center(child: CircularProgressIndicator()),
           );
         }
 
@@ -515,9 +486,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
 
                   const SizedBox(height: 36),
 
-                  const _SectionTitle(
-                    title: 'Informações pessoais',
-                  ),
+                  const _SectionTitle(title: 'Informações pessoais'),
 
                   const SizedBox(height: 16),
 
@@ -536,9 +505,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
                       _InfoItem(
                         icon: Icons.email_outlined,
                         label: 'E-mail',
-                        value: _valorOuNaoInformado(
-                          usuario?.email,
-                        ),
+                        value: _valorOuNaoInformado(usuario?.email),
                       ),
 
                       const _InfoDivider(),
@@ -546,9 +513,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
                       _InfoItem(
                         icon: Icons.calendar_today_outlined,
                         label: 'Data de nascimento',
-                        value: _formatarData(
-                          usuario?.dataNascimento,
-                        ),
+                        value: _formatarData(usuario?.dataNascimento),
                       ),
 
                       const _InfoDivider(),
@@ -556,9 +521,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
                       _InfoItem(
                         icon: Icons.badge_outlined,
                         label: 'CPF',
-                        value: _valorOuNaoInformado(
-                          usuario?.cpf,
-                        ),
+                        value: _valorOuNaoInformado(usuario?.cpf),
                         trailing: possuiCpf
                             ? null
                             : IconButton(
@@ -574,9 +537,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
                       _InfoItem(
                         icon: Icons.wc_outlined,
                         label: 'Gênero',
-                        value: _valorOuNaoInformado(
-                          usuario?.genero,
-                        ),
+                        value: _valorOuNaoInformado(usuario?.genero),
                         trailing: IconButton(
                           onPressed: () {
                             _abrirSeletorGenero(usuario?.genero);
@@ -591,9 +552,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
 
                   const SizedBox(height: 32),
 
-                  const _SectionTitle(
-                    title: 'Endereço',
-                  ),
+                  const _SectionTitle(title: 'Endereço'),
 
                   const SizedBox(height: 16),
 
@@ -684,10 +643,7 @@ class _ProfileImageSection extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: DadosPessoaisPage.primaryBlue,
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white,
-                        width: 5,
-                      ),
+                      border: Border.all(color: Colors.white, width: 5),
                     ),
                     child: const Icon(
                       Icons.camera_alt_outlined,
@@ -733,9 +689,7 @@ class _ProfileImageSection extends StatelessWidget {
 class _SectionTitle extends StatelessWidget {
   final String title;
 
-  const _SectionTitle({
-    required this.title,
-  });
+  const _SectionTitle({required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -753,29 +707,19 @@ class _SectionTitle extends StatelessWidget {
 class _InfoCard extends StatelessWidget {
   final List<Widget> children;
 
-  const _InfoCard({
-    required this.children,
-  });
+  const _InfoCard({required this.children});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 8,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(
-          color: DadosPessoaisPage.borderGray,
-          width: 1.2,
-        ),
+        border: Border.all(color: DadosPessoaisPage.borderGray, width: 1.2),
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Column(
-        children: children,
-      ),
+      child: Column(children: children),
     );
   }
 }
@@ -796,9 +740,7 @@ class _InfoItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: 17,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 17),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -809,11 +751,7 @@ class _InfoItem extends StatelessWidget {
               color: DadosPessoaisPage.lightBlue,
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              icon,
-              color: DadosPessoaisPage.primaryBlue,
-              size: 24,
-            ),
+            child: Icon(icon, color: DadosPessoaisPage.primaryBlue, size: 24),
           ),
 
           const SizedBox(width: 16),
@@ -845,10 +783,7 @@ class _InfoItem extends StatelessWidget {
             ),
           ),
 
-          if (trailing != null) ...[
-            const SizedBox(width: 8),
-            trailing!,
-          ],
+          if (trailing != null) ...[const SizedBox(width: 8), trailing!],
         ],
       ),
     );
@@ -860,10 +795,7 @@ class _InfoDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Divider(
-      height: 1,
-      color: DadosPessoaisPage.borderGray,
-    );
+    return const Divider(height: 1, color: DadosPessoaisPage.borderGray);
   }
 }
 
@@ -871,10 +803,7 @@ class _AddressCard extends StatelessWidget {
   final Endereco? endereco;
   final VoidCallback onAlterarEndereco;
 
-  const _AddressCard({
-    required this.endereco,
-    required this.onAlterarEndereco,
-  });
+  const _AddressCard({required this.endereco, required this.onAlterarEndereco});
 
   String _formatarEndereco() {
     if (endereco == null) {
@@ -883,32 +812,19 @@ class _AddressCard extends StatelessWidget {
 
     final enderecoFormatado = StringBuffer();
 
-    enderecoFormatado.write(
-      '${endereco!.rua}, ${endereco!.numero}',
-    );
+    enderecoFormatado.write('${endereco!.rua}, ${endereco!.numero}');
 
-    if (endereco!.complemento != null &&
-        endereco!.complemento!.isNotEmpty) {
-      enderecoFormatado.write(
-        ' - ${endereco!.complemento}',
-      );
+    if (endereco!.complemento != null && endereco!.complemento!.isNotEmpty) {
+      enderecoFormatado.write(' - ${endereco!.complemento}');
     }
 
-    enderecoFormatado.write(
-      '\n${endereco!.bairro}',
-    );
+    enderecoFormatado.write('\n${endereco!.bairro}');
 
-    enderecoFormatado.write(
-      '\n${endereco!.cidade} - ${endereco!.estado}',
-    );
+    enderecoFormatado.write('\n${endereco!.cidade} - ${endereco!.estado}');
 
-    enderecoFormatado.write(
-      '\nCEP: ${endereco!.cep}',
-    );
+    enderecoFormatado.write('\nCEP: ${endereco!.cep}');
 
-    enderecoFormatado.write(
-      '\n${endereco!.pais}',
-    );
+    enderecoFormatado.write('\n${endereco!.pais}');
 
     return enderecoFormatado.toString();
   }
@@ -920,10 +836,7 @@ class _AddressCard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(
-          color: DadosPessoaisPage.borderGray,
-          width: 1.2,
-        ),
+        border: Border.all(color: DadosPessoaisPage.borderGray, width: 1.2),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -969,16 +882,10 @@ class _AddressCard extends StatelessWidget {
             height: 52,
             child: OutlinedButton.icon(
               onPressed: onAlterarEndereco,
-              icon: const Icon(
-                Icons.edit_outlined,
-                size: 21,
-              ),
+              icon: const Icon(Icons.edit_outlined, size: 21),
               label: const Text(
                 'Alterar endereço',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                ),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
               ),
               style: OutlinedButton.styleFrom(
                 foregroundColor: DadosPessoaisPage.primaryBlue,
@@ -1029,12 +936,8 @@ class _AddressForm extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: DadosPessoaisPage.lightBlue.withValues(
-          alpha: 0.35,
-        ),
-        border: Border.all(
-          color: DadosPessoaisPage.borderGray,
-        ),
+        color: DadosPessoaisPage.lightBlue.withValues(alpha: 0.35),
+        border: Border.all(color: DadosPessoaisPage.borderGray),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -1136,9 +1039,7 @@ class _AddressForm extends StatelessWidget {
               Expanded(
                 child: OutlinedButton(
                   onPressed: onCancelar,
-                  child: const Text(
-                    'Cancelar',
-                  ),
+                  child: const Text('Cancelar'),
                 ),
               ),
 
@@ -1151,9 +1052,7 @@ class _AddressForm extends StatelessWidget {
                     backgroundColor: DadosPessoaisPage.primaryBlue,
                     foregroundColor: Colors.white,
                   ),
-                  child: const Text(
-                    'Salvar',
-                  ),
+                  child: const Text('Salvar'),
                 ),
               ),
             ],
@@ -1179,29 +1078,19 @@ class _AddressTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
-      style: const TextStyle(
-        color: DadosPessoaisPage.darkBlue,
-        fontSize: 16,
-      ),
+      style: const TextStyle(color: DadosPessoaisPage.darkBlue, fontSize: 16),
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(
-          icon,
-          color: DadosPessoaisPage.primaryBlue,
-        ),
+        prefixIcon: Icon(icon, color: DadosPessoaisPage.primaryBlue),
         filled: true,
         fillColor: Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(
-            color: DadosPessoaisPage.borderGray,
-          ),
+          borderSide: const BorderSide(color: DadosPessoaisPage.borderGray),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(
-            color: DadosPessoaisPage.borderGray,
-          ),
+          borderSide: const BorderSide(color: DadosPessoaisPage.borderGray),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),

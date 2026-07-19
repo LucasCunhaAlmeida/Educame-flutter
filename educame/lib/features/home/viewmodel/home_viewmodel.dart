@@ -17,6 +17,7 @@ class HomeViewModel extends ChangeNotifier {
 
   List<Professor> _professoresDestaque = const [];
   List<AulaDetalhada> _proximasAulas = const [];
+  List<AulaDetalhada> _historicoRecente = const [];
   int? _alunoId;
   bool _carregando = false;
   String? _erro;
@@ -24,6 +25,7 @@ class HomeViewModel extends ChangeNotifier {
 
   List<Professor> get professoresDestaque => _professoresDestaque;
   List<AulaDetalhada> get proximasAulas => _proximasAulas;
+  List<AulaDetalhada> get historicoRecente => _historicoRecente;
   int? get alunoId => _alunoId;
   bool get carregando => _carregando;
   String? get erro => _erro;
@@ -38,6 +40,9 @@ class HomeViewModel extends ChangeNotifier {
 
   bool get semProximasAulas =>
       !_carregando && _erro == null && _proximasAulas.isEmpty;
+
+  bool get semHistoricoRecente =>
+      !_carregando && _erro == null && _historicoRecente.isEmpty;
 
   Future<void> carregar() async {
     if (_carregando) {
@@ -58,7 +63,13 @@ class HomeViewModel extends ChangeNotifier {
           ? const <AulaDetalhada>[]
           : await _aulaRepository.listarProximasDetalhadas(
               alunoId,
-              limite: 3,
+              limite: 2,
+            );
+      final historicoRecente = alunoId == null
+          ? const <AulaDetalhada>[]
+          : await _aulaRepository.listarHistoricoDetalhado(
+              alunoId,
+              limite: 2,
             );
 
       if (_disposed) {
@@ -68,6 +79,7 @@ class HomeViewModel extends ChangeNotifier {
       _alunoId = alunoId;
       _professoresDestaque = List.unmodifiable(professores);
       _proximasAulas = List.unmodifiable(proximasAulas);
+      _historicoRecente = List.unmodifiable(historicoRecente);
     } catch (_) {
       if (_disposed) {
         return;
@@ -75,6 +87,7 @@ class HomeViewModel extends ChangeNotifier {
 
       _professoresDestaque = const [];
       _proximasAulas = const [];
+      _historicoRecente = const [];
       _erro = 'Não foi possível carregar os dados da home.';
     } finally {
       if (!_disposed) {

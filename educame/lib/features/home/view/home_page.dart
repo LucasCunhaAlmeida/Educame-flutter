@@ -11,12 +11,6 @@ import '../viewmodel/home_viewmodel.dart';
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
-  static const Color primaryBlue = Color(0xFF006DFF);
-  static const Color darkBlue = Color(0xFF08295A);
-  static const Color textGray = Color(0xFF657491);
-  static const Color borderGray = Color(0xFFE4E9F2);
-  static const Color lightBlue = Color(0xFFEAF2FF);
-
   @override
   Widget build(BuildContext context) {
     final nomeUsuario = context.select<HomeViewModel, String>(
@@ -77,7 +71,7 @@ class HomePage extends StatelessWidget {
 
               const SizedBox(height: 34),
 
-              const _HistoryCard(),
+              const _RecentHistorySection(),
 
               const SizedBox(height: 12),
             ],
@@ -86,6 +80,12 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
+  
+  static const Color primaryBlue = Color(0xFF006DFF);
+  static const Color darkBlue = Color(0xFF08295A);
+  static const Color textGray = Color(0xFF657491);
+  static const Color borderGray = Color(0xFFE4E9F2);
+  static const Color lightBlue = Color(0xFFEAF2FF);
 }
 
 class _Header extends StatelessWidget {
@@ -436,15 +436,29 @@ class _UpcomingClassesSection extends StatelessWidget {
           return const _EmptyScheduleCard();
         }
 
+        final aulasEmDestaque = viewModel.proximasAulas.take(2).toList();
+        final temMaisAulas = viewModel.proximasAulas.length > aulasEmDestaque.length;
+
         return Column(
           children: [
-            for (var index = 0; index < viewModel.proximasAulas.length; index++)
+            for (var index = 0; index < aulasEmDestaque.length; index++)
               Padding(
                 padding: EdgeInsets.only(
-                  bottom: index == viewModel.proximasAulas.length - 1 ? 0 : 14,
+                  bottom: index == aulasEmDestaque.length - 1 ? 0 : 14,
                 ),
-                child: _ClassCard.fromAula(viewModel.proximasAulas[index]),
+                child: _ClassCard.fromAula(aulasEmDestaque[index]),
               ),
+            if (temMaisAulas) ...[
+              const SizedBox(height: 14),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: () => context.push(AppRoutes.aulasFuturas),
+                  icon: const Icon(Icons.event_note_outlined),
+                  label: const Text('Ver todas as aulas agendadas'),
+                ),
+              ),
+            ],
           ],
         );
       },
@@ -597,68 +611,72 @@ class _EmptyScheduleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFEAF2FF),
+    return Material(
+      color: const Color(0xFFEAF2FF),
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
         borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        onTap: () => context.go(AppRoutes.professores),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Icon(
-                Icons.calendar_today_outlined,
-                color: HomePage.primaryBlue,
-                size: 34,
+              const Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.calendar_today_outlined,
+                    color: HomePage.primaryBlue,
+                    size: 34,
+                  ),
+                  SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Nada agendado para o resto da semana',
+                          style: TextStyle(
+                            color: HomePage.darkBlue,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Que tal agendar uma nova aula?',
+                          style: TextStyle(
+                            color: HomePage.textGray,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Nada agendado para o resto da semana',
-                      style: TextStyle(
-                        color: HomePage.darkBlue,
-                        fontSize: 17,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Que tal agendar uma nova aula?',
-                      style: TextStyle(
-                        color: HomePage.textGray,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ],
+              const SizedBox(height: 14),
+              Container(
+                height: 44,
+                decoration: BoxDecoration(
+                  color: HomePage.primaryBlue,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                alignment: Alignment.center,
+                child: const Text(
+                  'Agendar aula',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
-          Container(
-            height: 44,
-            decoration: BoxDecoration(
-              color: HomePage.primaryBlue,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            alignment: Alignment.center,
-            child: const Text(
-              'Agendar aula',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -767,72 +785,120 @@ class _SubjectItem extends StatelessWidget {
   }
 }
 
-class _HistoryCard extends StatelessWidget {
-  const _HistoryCard();
+class _RecentHistorySection extends StatelessWidget {
+  const _RecentHistorySection();
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-        side: const BorderSide(color: HomePage.borderGray),
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(14),
-        onTap: () => context.push(AppRoutes.historicoAulas),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: HomePage.lightBlue,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.history,
-                  color: HomePage.primaryBlue,
-                  size: 30,
-                ),
-              ),
-              const SizedBox(width: 14),
-              const Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+    return Consumer<HomeViewModel>(
+      builder: (context, viewModel, child) {
+        if (viewModel.carregando && viewModel.historicoRecente.isEmpty) {
+          return const SizedBox(
+            height: 120,
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (viewModel.semHistoricoRecente) {
+          return Material(
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+              side: const BorderSide(color: HomePage.borderGray),
+            ),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(14),
+              onTap: () => context.push(AppRoutes.historicoAulas),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
                   children: [
-                    Text(
-                      'Histórico de aulas',
-                      style: TextStyle(
-                        color: HomePage.darkBlue,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: HomePage.lightBlue,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.history,
+                        color: HomePage.primaryBlue,
+                        size: 30,
                       ),
                     ),
-                    SizedBox(height: 8),
-                    Text(
-                      'Veja suas aulas anteriores e revisite os detalhes.',
-                      style: TextStyle(
-                        color: HomePage.textGray,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
+                    const SizedBox(width: 14),
+                    const Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Histórico de aulas',
+                            style: TextStyle(
+                              color: HomePage.darkBlue,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Veja suas aulas anteriores e revisite os detalhes.',
+                            style: TextStyle(
+                              color: HomePage.textGray,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ],
                       ),
+                    ),
+                    const Icon(
+                      Icons.chevron_right,
+                      color: HomePage.primaryBlue,
+                      size: 30,
                     ),
                   ],
                 ),
               ),
-              const Icon(
-                Icons.chevron_right,
-                color: HomePage.primaryBlue,
-                size: 30,
+            ),
+          );
+        }
+
+        final historico = viewModel.historicoRecente.take(2).toList();
+        final temMaisHistorico = historico.length == 2 &&
+            viewModel.historicoRecente.length > historico.length;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _SectionHeader(
+              icon: Icons.history,
+              title: 'Histórico recente',
+              actionText: 'Ver histórico',
+              onActionTap: () => context.push(AppRoutes.historicoAulas),
+            ),
+            const SizedBox(height: 18),
+            for (var index = 0; index < historico.length; index++)
+              Padding(
+                padding: EdgeInsets.only(
+                  bottom: index == historico.length - 1 ? 0 : 14,
+                ),
+                child: _ClassCard.fromAula(historico[index]),
+              ),
+            if (temMaisHistorico) ...[
+              const SizedBox(height: 14),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: () => context.push(AppRoutes.historicoAulas),
+                  icon: const Icon(Icons.history),
+                  label: const Text('Ver histórico completo'),
+                ),
               ),
             ],
-          ),
-        ),
-      ),
+          ],
+        );
+      },
     );
   }
 }

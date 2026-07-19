@@ -9,6 +9,7 @@ import 'data/repositories/aula_repository.dart';
 import 'data/repositories/avaliacao_repository.dart';
 import 'data/repositories/disciplina_repository.dart';
 import 'data/repositories/disponibilidade_repository.dart';
+import 'data/repositories/pagamento_repository.dart';
 import 'data/repositories/perfil_repository.dart';
 import 'data/repositories/professor_repository.dart';
 
@@ -45,6 +46,7 @@ class _EducameAppState extends State<EducameApp> {
   late final DisponibilidadeRepository _disponibilidadeRepository;
   late final AvaliacaoRepository _avaliacaoRepository;
   late final AulaRepository _aulaRepository;
+  late final PagamentoRepository _pagamentoRepository;
 
   late final GoRouter _router;
 
@@ -70,11 +72,14 @@ class _EducameAppState extends State<EducameApp> {
 
     _aulaRepository = widget.aulaRepository ?? AulaRepository();
 
+    _pagamentoRepository = PagamentoRepository();
+
     _router = createAppRouter(
       professorRepository: _professorRepository,
       avaliacaoRepository: _avaliacaoRepository,
       disponibilidadeRepository: _disponibilidadeRepository,
       aulaRepository: _aulaRepository,
+      pagamentoRepository: _pagamentoRepository,
     );
   }
 
@@ -114,6 +119,10 @@ class _EducameAppState extends State<EducameApp> {
 
         Provider.value(
           value: _aulaRepository,
+        ),
+
+        Provider.value(
+          value: _pagamentoRepository,
         ),
 
         ChangeNotifierProvider(

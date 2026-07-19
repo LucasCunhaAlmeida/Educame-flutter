@@ -133,6 +133,7 @@ class ProfessorDetalhesPage extends StatelessWidget {
                     (entry) => Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: _AvailabilityDay(
+                        professorId: professor.id!,
                         date: entry.key,
                         items: entry.value,
                       ),
@@ -375,10 +376,15 @@ class _EvaluationCard extends StatelessWidget {
 }
 
 class _AvailabilityDay extends StatelessWidget {
+  final int professorId;
   final DateTime date;
   final List<Disponibilidade> items;
 
-  const _AvailabilityDay({required this.date, required this.items});
+  const _AvailabilityDay({
+    required this.professorId,
+    required this.date,
+    required this.items,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -404,32 +410,49 @@ class _AvailabilityDay extends StatelessWidget {
             runSpacing: 9,
             children: items
                 .map(
-                  (item) => Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: ProfessorDetalhesPage.lightBlue,
+                  (item) => Material(
+                    color: Colors.transparent,
+                    child: InkWell(
                       borderRadius: BorderRadius.circular(9),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.schedule,
-                          color: ProfessorDetalhesPage.primaryBlue,
-                          size: 17,
+                      onTap: item.id == null
+                          ? null
+                          : () => context.push(
+                                AppRoutes.confirmarAgendamento(
+                                  professorId: professorId,
+                                  disponibilidadeId: item.id!,
+                                ),
+                              ),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
                         ),
-                        const SizedBox(width: 6),
-                        Text(
-                          '${_time(item.inicio)} - ${_time(item.fim)}',
-                          style: const TextStyle(
-                            color: ProfessorDetalhesPage.primaryBlue,
-                            fontWeight: FontWeight.w700,
+                        decoration: BoxDecoration(
+                          color: ProfessorDetalhesPage.lightBlue,
+                          borderRadius: BorderRadius.circular(9),
+                          border: Border.all(
+                            color: ProfessorDetalhesPage.lightBlue,
                           ),
                         ),
-                      ],
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.schedule,
+                              color: ProfessorDetalhesPage.primaryBlue,
+                              size: 17,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              '${_time(item.inicio)} - ${_time(item.fim)}',
+                              style: const TextStyle(
+                                color: ProfessorDetalhesPage.primaryBlue,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 )

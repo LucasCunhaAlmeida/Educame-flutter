@@ -40,7 +40,7 @@ class Pagamento {
       id: map['id'],
       aulaId: map['aula_id'],
       alunoId: map['aluno_id'],
-      valor: map['valor'],
+      valor: (map['valor'] as num).toDouble(),
       status: map['status'],
       dataVencimento: DateTime.parse(
         map['data_vencimento'],
