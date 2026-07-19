@@ -39,10 +39,7 @@ class DetalhesAulaPage extends StatelessWidget {
         ),
         title: const Text(
           'Detalhes da aula',
-          style: TextStyle(
-            color: darkBlue,
-            fontWeight: FontWeight.w800,
-          ),
+          style: TextStyle(color: darkBlue, fontWeight: FontWeight.w800),
         ),
       ),
       body: Consumer<HistoricoViewModel>(
@@ -54,9 +51,8 @@ class DetalhesAulaPage extends StatelessWidget {
           if (viewModel.erro != null && viewModel.aulaSelecionada == null) {
             return _ErrorState(
               message: viewModel.erro!,
-              onRetry: () => context.read<HistoricoViewModel>().selecionarAula(
-                    aulaId,
-                  ),
+              onRetry: () =>
+                  context.read<HistoricoViewModel>().selecionarAula(aulaId),
             );
           }
 
@@ -67,13 +63,12 @@ class DetalhesAulaPage extends StatelessWidget {
 
           final pagamento = viewModel.pagamentoSelecionado;
           final status = aula.aula.status.toLowerCase();
-          final podeCancelar = status == 'agendada' &&
-              aula.aula.inicio.isAfter(DateTime.now());
+          final podeCancelar =
+              status == 'agendada' && aula.aula.inicio.isAfter(DateTime.now());
 
           return RefreshIndicator(
-            onRefresh: () => context.read<HistoricoViewModel>().selecionarAula(
-                  aulaId,
-                ),
+            onRefresh: () =>
+                context.read<HistoricoViewModel>().selecionarAula(aulaId),
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.fromLTRB(24, 18, 24, 30),
@@ -146,8 +141,8 @@ class DetalhesAulaPage extends StatelessWidget {
                     onPressed: viewModel.carregando
                         ? null
                         : () => context.read<HistoricoViewModel>().cancelarAula(
-                              aulaId,
-                            ),
+                            aulaId,
+                          ),
                     icon: const Icon(Icons.cancel_outlined),
                     label: const Text('Cancelar agendamento'),
                   ),
@@ -368,6 +363,16 @@ class _StatusChip extends StatelessWidget {
       'pendente' => const Color(0xFFCC8400),
       _ => DetalhesAulaPage.darkBlue,
     };
+    final label = switch (normalized) {
+      'agendada' => 'Agendada',
+      'confirmada' => 'Confirmada',
+      'concluida' => 'Concluída',
+      'cancelada' => 'Cancelada',
+      'pendente' => 'Pendente',
+      'pago' => 'Pago',
+      'cancelado' => 'Cancelado',
+      _ => status,
+    };
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -377,11 +382,8 @@ class _StatusChip extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         child: Text(
-          status,
-          style: TextStyle(
-            color: color,
-            fontWeight: FontWeight.w700,
-          ),
+          label,
+          style: TextStyle(color: color, fontWeight: FontWeight.w700),
         ),
       ),
     );
@@ -392,10 +394,7 @@ class _ErrorState extends StatelessWidget {
   final String message;
   final Future<void> Function() onRetry;
 
-  const _ErrorState({
-    required this.message,
-    required this.onRetry,
-  });
+  const _ErrorState({required this.message, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
