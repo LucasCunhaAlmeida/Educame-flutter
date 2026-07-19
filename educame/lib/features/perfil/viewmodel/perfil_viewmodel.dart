@@ -18,8 +18,8 @@ class PerfilViewModel extends ChangeNotifier {
   PerfilViewModel({
     required AuthRepository authRepository,
     required PerfilRepository perfilRepository,
-  })  : _authRepository = authRepository,
-        _perfilRepository = perfilRepository;
+  }) : _authRepository = authRepository,
+       _perfilRepository = perfilRepository;
 
   Pessoa? get usuario => _usuario;
 
@@ -36,7 +36,7 @@ class PerfilViewModel extends ChangeNotifier {
   String get emailUsuario {
     final email = _usuario?.email.trim();
 
-    return email == null || email.isEmpty ? 'E-mail nao informado' : email;
+    return email == null || email.isEmpty ? 'E-mail não informado' : email;
   }
 
   Future<void> carregarDadosPessoais() async {
@@ -85,11 +85,11 @@ class PerfilViewModel extends ChangeNotifier {
     final usuario = _usuario ?? SessionManager.usuarioAtual;
 
     if (usuario == null) {
-      throw Exception('Usuario nao autenticado.');
+      throw Exception('Usuário não autenticado.');
     }
 
     if (usuario.id == null) {
-      throw Exception('Usuario invalido.');
+      throw Exception('Usuário inválido.');
     }
 
     if (usuario.enderecoId == null) {
@@ -129,13 +129,10 @@ class PerfilViewModel extends ChangeNotifier {
     final usuario = _obterUsuarioValido();
 
     if (usuario.cpf != null && usuario.cpf!.trim().isNotEmpty) {
-      throw Exception('CPF ja cadastrado.');
+      throw Exception('CPF já cadastrado.');
     }
 
-    await _perfilRepository.atualizarCpf(
-      pessoaId: usuario.id!,
-      cpf: cpf,
-    );
+    await _perfilRepository.atualizarCpf(pessoaId: usuario.id!, cpf: cpf);
 
     await carregarDadosPessoais();
   }
@@ -185,11 +182,11 @@ class PerfilViewModel extends ChangeNotifier {
     final usuario = _usuario ?? SessionManager.usuarioAtual;
 
     if (usuario == null) {
-      throw Exception('Usuario nao autenticado.');
+      throw Exception('Usuário não autenticado.');
     }
 
     if (usuario.id == null) {
-      throw Exception('Usuario invalido.');
+      throw Exception('Usuário inválido.');
     }
 
     return usuario;
