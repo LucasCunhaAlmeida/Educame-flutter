@@ -1,4 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'dart:io';
+
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -6,15 +8,49 @@ import '../../../core/routes/app_router.dart';
 import '../../../core/widgets/app_bottom_nav_bar.dart';
 import '../../../data/models/professor.dart';
 import '../../../data/repositories/aula_repository.dart';
+import '../../professores/viewmodel/professor_viewmodel.dart';
 import '../viewmodel/home_viewmodel.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+
+  static const Color primaryBlue = Color(0xFF006DFF);
+  static const Color darkBlue = Color(0xFF08295A);
+  static const Color textGray = Color(0xFF657491);
+  static const Color borderGray = Color(0xFFE4E9F2);
+  static const Color lightBlue = Color(0xFFEAF2FF);
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<HomeViewModel>().carregar();
+      }
+    });
+  }
+
+  Future<void> _abrirTodasAsAulas() async {
+    await context.push(AppRoutes.aulasFuturas);
+
+    if (mounted) {
+      await context.read<HomeViewModel>().carregar();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final nomeUsuario = context.select<HomeViewModel, String>(
       (viewModel) => viewModel.nomeUsuario,
+    );
+    final fotoPerfil = context.select<HomeViewModel, String?>(
+      (viewModel) => viewModel.fotoPerfilUsuario,
     );
 
     return Scaffold(
@@ -26,7 +62,7 @@ class HomePage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _Header(nomeUsuario: nomeUsuario),
+              _Header(nomeUsuario: nomeUsuario, fotoPerfil: fotoPerfil),
 
               const SizedBox(height: 38),
 
@@ -36,9 +72,9 @@ class HomePage extends StatelessWidget {
 
               _SectionHeader(
                 icon: Icons.calendar_today_outlined,
-                title: 'Proximas aulas',
+                title: 'Próximas aulas',
                 actionText: 'Ver todas',
-                onActionTap: () => context.push(AppRoutes.aulasFuturas),
+                onActionTap: _abrirTodasAsAulas,
               ),
 
               const SizedBox(height: 8),
@@ -46,7 +82,7 @@ class HomePage extends StatelessWidget {
               const Text(
                 'Veja seus agendamentos desta semana.',
                 style: TextStyle(
-                  color: textGray,
+                  color: HomePage.textGray,
                   fontSize: 18,
                   fontWeight: FontWeight.w400,
                 ),
@@ -54,7 +90,7 @@ class HomePage extends StatelessWidget {
 
               const SizedBox(height: 26),
 
-              const _UpcomingClassesSection(),
+              _UpcomingClassesSection(onVerTodas: _abrirTodasAsAulas),
 
               const SizedBox(height: 46),
 
@@ -80,18 +116,13 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
-  
-  static const Color primaryBlue = Color(0xFF006DFF);
-  static const Color darkBlue = Color(0xFF08295A);
-  static const Color textGray = Color(0xFF657491);
-  static const Color borderGray = Color(0xFFE4E9F2);
-  static const Color lightBlue = Color(0xFFEAF2FF);
 }
 
 class _Header extends StatelessWidget {
   final String nomeUsuario;
+  final String? fotoPerfil;
 
-  const _Header({required this.nomeUsuario});
+  const _Header({required this.nomeUsuario, required this.fotoPerfil});
 
   @override
   Widget build(BuildContext context) {
@@ -123,17 +154,37 @@ class _Header extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        Container(
-          width: 58,
-          height: 58,
-          decoration: const BoxDecoration(
-            color: Color(0xFFEAF2FF),
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(
-            Icons.person_outline,
-            color: HomePage.primaryBlue,
-            size: 34,
+        Tooltip(
+          message: 'Abrir perfil',
+          child: Material(
+            color: HomePage.lightBlue,
+            shape: const CircleBorder(),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: () => context.go(AppRoutes.perfil),
+              customBorder: const CircleBorder(),
+              child: SizedBox(
+                width: 58,
+                height: 58,
+                child: fotoPerfil == null
+                    ? const Icon(
+                        Icons.person_outline,
+                        color: HomePage.primaryBlue,
+                        size: 34,
+                      )
+                    : Image.file(
+                        File(fotoPerfil!),
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(
+                            Icons.person_outline,
+                            color: HomePage.primaryBlue,
+                            size: 34,
+                          );
+                        },
+                      ),
+              ),
+            ),
           ),
         ),
       ],
@@ -357,7 +408,7 @@ class _FeaturedProfessorCard extends StatelessWidget {
                 const Align(
                   alignment: Alignment.centerRight,
                   child: Text(
-                    'Ver perfil’',
+                    'Ver perfil',
                     style: TextStyle(
                       color: HomePage.primaryBlue,
                       fontWeight: FontWeight.w700,
@@ -419,7 +470,9 @@ class _SectionHeader extends StatelessWidget {
 }
 
 class _UpcomingClassesSection extends StatelessWidget {
-  const _UpcomingClassesSection();
+  final VoidCallback onVerTodas;
+
+  const _UpcomingClassesSection({required this.onVerTodas});
 
   @override
   Widget build(BuildContext context) {
@@ -436,8 +489,9 @@ class _UpcomingClassesSection extends StatelessWidget {
           return const _EmptyScheduleCard();
         }
 
-        final aulasEmDestaque = viewModel.proximasAulas.take(2).toList();
-        final temMaisAulas = viewModel.proximasAulas.length > aulasEmDestaque.length;
+        final aulasEmDestaque = viewModel.proximasAulas.take(3).toList();
+        final temMaisAulas =
+            viewModel.proximasAulas.length > aulasEmDestaque.length;
 
         return Column(
           children: [
@@ -453,7 +507,7 @@ class _UpcomingClassesSection extends StatelessWidget {
               Align(
                 alignment: Alignment.centerLeft,
                 child: TextButton.icon(
-                  onPressed: () => context.push(AppRoutes.aulasFuturas),
+                  onPressed: onVerTodas,
                   icon: const Icon(Icons.event_note_outlined),
                   label: const Text('Ver todas as aulas agendadas'),
                 ),
@@ -588,7 +642,7 @@ class _ClassCard extends StatelessWidget {
                       ],
                     ),
                     Text(
-                      '$date â€¢ $time',
+                      '$date • $time',
                       style: const TextStyle(
                         color: HomePage.primaryBlue,
                         fontSize: 14,
@@ -689,37 +743,37 @@ class _SubjectsList extends StatelessWidget {
   Widget build(BuildContext context) {
     final subjects = [
       _SubjectItem(
-        title: 'MatemÃ¡tica',
+        title: 'Matemática',
         icon: Icons.calculate_outlined,
         iconColor: HomePage.primaryBlue,
         backgroundColor: const Color(0xFFEAF2FF),
       ),
       _SubjectItem(
-        title: 'FÃ­sica',
+        title: 'Física',
         icon: Icons.science_outlined,
         iconColor: const Color(0xFF18C56E),
         backgroundColor: const Color(0xFFE9F9F0),
       ),
       _SubjectItem(
-        title: 'QuÃ­mica',
+        title: 'Química',
         icon: Icons.menu_book_outlined,
         iconColor: const Color(0xFF7B3DFF),
         backgroundColor: const Color(0xFFF1EAFE),
       ),
       _SubjectItem(
-        title: 'InglÃªs',
+        title: 'Inglês',
         icon: Icons.translate_outlined,
         iconColor: const Color(0xFFFF9900),
         backgroundColor: const Color(0xFFFFF4DF),
       ),
       _SubjectItem(
-        title: 'ProgramaÃ§Ã£o',
+        title: 'Programação',
         icon: Icons.code,
         iconColor: HomePage.primaryBlue,
         backgroundColor: const Color(0xFFF0F5FF),
       ),
       _SubjectItem(
-        title: 'RedaÃ§Ã£o',
+        title: 'Redação',
         icon: Icons.edit_outlined,
         iconColor: const Color(0xFFFF3B3B),
         backgroundColor: const Color(0xFFFFEEEE),
@@ -753,33 +807,45 @@ class _SubjectItem extends StatelessWidget {
     required this.backgroundColor,
   });
 
+  Future<void> _abrirDisciplina(BuildContext context) async {
+    await context.read<ProfessorViewModel>().filtrarPorDisciplina(title);
+
+    if (context.mounted) {
+      context.go(AppRoutes.professores);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: 82,
-      child: Column(
-        children: [
-          Container(
-            width: 78,
-            height: 72,
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: () => _abrirDisciplina(context),
+        borderRadius: BorderRadius.circular(12),
+        child: Column(
+          children: [
+            Container(
+              width: 78,
+              height: 72,
+              decoration: BoxDecoration(
+                color: backgroundColor,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: iconColor, size: 38),
             ),
-            child: Icon(icon, color: iconColor, size: 38),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: HomePage.darkBlue,
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
+            const SizedBox(height: 10),
+            Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: HomePage.darkBlue,
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -865,7 +931,8 @@ class _RecentHistorySection extends StatelessWidget {
         }
 
         final historico = viewModel.historicoRecente.take(2).toList();
-        final temMaisHistorico = historico.length == 2 &&
+        final temMaisHistorico =
+            historico.length == 2 &&
             viewModel.historicoRecente.length > historico.length;
 
         return Column(
