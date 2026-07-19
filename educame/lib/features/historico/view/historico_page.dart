@@ -35,10 +35,7 @@ class HistoricoPage extends StatelessWidget {
         ),
         title: const Text(
           'Histórico',
-          style: TextStyle(
-            color: darkBlue,
-            fontWeight: FontWeight.w800,
-          ),
+          style: TextStyle(color: darkBlue, fontWeight: FontWeight.w800),
         ),
       ),
       body: Consumer<HistoricoViewModel>(
@@ -228,10 +225,7 @@ class _SectionHeader extends StatelessWidget {
   final String title;
   final String subtitle;
 
-  const _SectionHeader({
-    required this.title,
-    required this.subtitle,
-  });
+  const _SectionHeader({required this.title, required this.subtitle});
 
   @override
   Widget build(BuildContext context) {
@@ -247,10 +241,7 @@ class _SectionHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 6),
-        Text(
-          subtitle,
-          style: const TextStyle(color: HistoricoPage.textGray),
-        ),
+        Text(subtitle, style: const TextStyle(color: HistoricoPage.textGray)),
       ],
     );
   }
@@ -260,10 +251,7 @@ class _LessonCard extends StatelessWidget {
   final AulaDetalhada aula;
   final VoidCallback onTap;
 
-  const _LessonCard({
-    required this.aula,
-    required this.onTap,
-  });
+  const _LessonCard({required this.aula, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -354,6 +342,13 @@ class _StatusChip extends StatelessWidget {
       'cancelada' => const Color(0xFFE43D3D),
       _ => HistoricoPage.darkBlue,
     };
+    final label = switch (normalized) {
+      'agendada' => 'Agendada',
+      'confirmada' => 'Confirmada',
+      'concluida' => 'Concluída',
+      'cancelada' => 'Cancelada',
+      _ => status,
+    };
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -363,11 +358,8 @@ class _StatusChip extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         child: Text(
-          status,
-          style: TextStyle(
-            color: color,
-            fontWeight: FontWeight.w700,
-          ),
+          label,
+          style: TextStyle(color: color, fontWeight: FontWeight.w700),
         ),
       ),
     );
@@ -401,10 +393,7 @@ class _ErrorState extends StatelessWidget {
   final String message;
   final Future<void> Function() onRetry;
 
-  const _ErrorState({
-    required this.message,
-    required this.onRetry,
-  });
+  const _ErrorState({required this.message, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
