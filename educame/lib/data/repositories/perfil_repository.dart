@@ -1,5 +1,3 @@
-import 'package:sqflite/sqflite.dart';
-
 import '../../core/security/password_hasher.dart';
 import '../app_database.dart';
 import '../models/endereco.dart';
@@ -48,9 +46,7 @@ class PerfilRepository {
 
     await database.update(
       'pessoa',
-      {
-        'cpf': cpf,
-      },
+      {'cpf': cpf},
       where: "id = ? AND (cpf IS NULL OR TRIM(cpf) = '')",
       whereArgs: [pessoaId],
     );
@@ -64,9 +60,7 @@ class PerfilRepository {
 
     await database.update(
       'pessoa',
-      {
-        'genero': genero,
-      },
+      {'genero': genero},
       where: 'id = ?',
       whereArgs: [pessoaId],
     );
@@ -80,9 +74,7 @@ class PerfilRepository {
 
     await database.update(
       'pessoa',
-      {
-        'senha': PasswordHasher.hash(novaSenha),
-      },
+      {'senha': PasswordHasher.hash(novaSenha)},
       where: 'id = ?',
       whereArgs: [pessoaId],
     );
@@ -96,9 +88,7 @@ class PerfilRepository {
 
     await database.update(
       'pessoa',
-      {
-        'foto_perfil': fotoPerfil,
-      },
+      {'foto_perfil': fotoPerfil},
       where: 'id = ?',
       whereArgs: [pessoaId],
     );
@@ -146,19 +136,16 @@ class PerfilRepository {
   }) async {
     final database = await AppDatabase.database;
 
-    return await database.insert(
-      'endereco',
-      {
-        'rua': rua,
-        'numero': numero,
-        'complemento': complemento,
-        'bairro': bairro,
-        'cidade': cidade,
-        'estado': estado,
-        'cep': cep,
-        'pais': pais,
-      },
-    );
+    return await database.insert('endereco', {
+      'rua': rua,
+      'numero': numero,
+      'complemento': complemento,
+      'bairro': bairro,
+      'cidade': cidade,
+      'estado': estado,
+      'cep': cep,
+      'pais': pais,
+    });
   }
 
   Future<void> associarEnderecoPessoa({
@@ -169,9 +156,7 @@ class PerfilRepository {
 
     await database.update(
       'pessoa',
-      {
-        'endereco_id': enderecoId,
-      },
+      {'endereco_id': enderecoId},
       where: 'id = ?',
       whereArgs: [pessoaId],
     );

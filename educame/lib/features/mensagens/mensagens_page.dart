@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../core/routes/app_router.dart';
 import '../../core/widgets/app_bottom_nav_bar.dart';
 
 class MensagensPage extends StatelessWidget {
@@ -449,7 +451,13 @@ class _EmptyConversationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Material(
+      color: MensagensPage.lightBlue,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: () => context.go(AppRoutes.professores),
+        child: Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MensagensPage.lightBlue,
@@ -517,6 +525,8 @@ class _EmptyConversationCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+        ),
       ),
     );
   }
