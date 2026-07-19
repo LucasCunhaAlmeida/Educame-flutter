@@ -21,6 +21,30 @@ class DisponibilidadeRepository {
     return result.map(Disponibilidade.fromMap).toList(growable: false);
   }
 
+  Future<Disponibilidade?> buscarPorId(int disponibilidadeId) async {
+    if (disponibilidadeId <= 0) {
+      throw ArgumentError.value(
+        disponibilidadeId,
+        'disponibilidadeId',
+        'O ID da disponibilidade deve ser maior que zero.',
+      );
+    }
+
+    final database = await _databaseProvider();
+    final resultado = await database.query(
+      'disponibilidade',
+      where: 'id = ?',
+      whereArgs: [disponibilidadeId],
+      limit: 1,
+    );
+
+    if (resultado.isEmpty) {
+      return null;
+    }
+
+    return Disponibilidade.fromMap(resultado.first);
+  }
+
   void _validarProfessorId(int professorId) {
     if (professorId <= 0) {
       throw ArgumentError.value(
