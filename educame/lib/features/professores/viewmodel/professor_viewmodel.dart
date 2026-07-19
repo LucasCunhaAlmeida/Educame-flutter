@@ -102,6 +102,41 @@ class ProfessorViewModel extends ChangeNotifier {
     await _consultarProfessores();
   }
 
+  Future<void> filtrarPorDisciplina(String nome) async {
+    _buscaDebounce?.cancel();
+
+    try {
+      if (_disciplinas.isEmpty) {
+        final disciplinas = await _disciplinaRepository.listarAtivas();
+        if (_disposed) {
+          return;
+        }
+        _disciplinas = List.unmodifiable(disciplinas);
+      }
+
+      final nomeNormalizado = nome.trim().toLowerCase();
+      final disciplina = _disciplinas.cast<Disciplina?>().firstWhere(
+        (item) => item?.nome.trim().toLowerCase() == nomeNormalizado,
+        orElse: () => null,
+      );
+
+      if (disciplina == null) {
+        _erro = 'Disciplina não encontrada.';
+        _notificar();
+        return;
+      }
+
+      _termoBusca = '';
+      _disciplinaSelecionada = disciplina;
+      await _consultarProfessores();
+    } catch (_) {
+      if (!_disposed) {
+        _erro = 'Não foi possível filtrar pela disciplina.';
+        _notificar();
+      }
+    }
+  }
+
   Future<void> limparFiltros() async {
     _buscaDebounce?.cancel();
     _termoBusca = '';

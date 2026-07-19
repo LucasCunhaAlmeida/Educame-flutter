@@ -52,7 +52,19 @@ class ProfessorRepository {
     int? limite,
   }) async {
     final database = await _databaseProvider();
-    final conditions = <String>['professor.ativo = 1'];
+    final conditions = <String>[
+      'professor.ativo = 1',
+      '''
+        EXISTS (
+          SELECT 1
+          FROM professor_disciplina especialidade
+          INNER JOIN disciplina disciplina_ativa
+            ON disciplina_ativa.id = especialidade.disciplina_id
+          WHERE especialidade.professor_id = professor.id
+            AND disciplina_ativa.ativo = 1
+        )
+      ''',
+    ];
     final arguments = <Object?>[];
     final normalizedName = nome?.trim();
 

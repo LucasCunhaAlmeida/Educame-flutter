@@ -53,9 +53,7 @@ class _PerfilPageState extends State<PerfilPage> {
 
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(
-        builder: (_) => const LoginPage(),
-      ),
+      MaterialPageRoute(builder: (_) => const LoginPage()),
       (route) => false,
     );
   }
@@ -93,45 +91,42 @@ class _PerfilPageState extends State<PerfilPage> {
       builder: (context, child) {
         return Scaffold(
           backgroundColor: Colors.white,
-          bottomNavigationBar: const AppBottomNavBar(
-            currentIndex: 3,
-          ),
+          bottomNavigationBar: const AppBottomNavBar(currentIndex: 3),
           body: SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
               child: Column(
                 children: [
-                  const _TopBar(),
+                  _TopBar(onEditar: _abrirDadosPessoais),
                   const SizedBox(height: 34),
                   _ProfileHeader(
                     nome: _viewModel.nomeUsuario,
                     email: _viewModel.emailUsuario,
                     fotoPerfil: _viewModel.usuario?.fotoPerfil,
+                    onAlterarFoto: _abrirDadosPessoais,
                   ),
                   const SizedBox(height: 30),
-                  const _StatsCard(),
-                  const SizedBox(height: 34),
                   _ProfileMenuItem(
                     icon: Icons.person_outline,
                     title: 'Dados pessoais',
-                    subtitle: 'Gerencie suas informacoes',
+                    subtitle: 'Gerencie suas informações',
                     onTap: _abrirDadosPessoais,
                   ),
                   _ProfileMenuItem(
                     icon: Icons.security_outlined,
-                    title: 'Seguranca',
+                    title: 'Segurança',
                     subtitle: 'Alterar senha',
                     onTap: _abrirSeguranca,
                   ),
                   _ProfileMenuItem(
                     icon: Icons.logout_outlined,
                     title: 'Sair da conta',
-                    subtitle: 'Encerrar sessao',
+                    subtitle: 'Encerrar sessão',
                     onTap: _logout,
                   ),
                   const SizedBox(height: 24),
                   const Text(
-                    'Versao 1.0.0',
+                    'Versão 1.0.0',
                     style: TextStyle(
                       color: PerfilPage.textGray,
                       fontSize: 14,
@@ -150,14 +145,16 @@ class _PerfilPageState extends State<PerfilPage> {
 }
 
 class _TopBar extends StatelessWidget {
-  const _TopBar();
+  final VoidCallback onEditar;
+
+  const _TopBar({required this.onEditar});
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
+        const Text(
           'Perfil',
           style: TextStyle(
             color: PerfilPage.darkBlue,
@@ -165,10 +162,14 @@ class _TopBar extends StatelessWidget {
             fontWeight: FontWeight.w800,
           ),
         ),
-        Icon(
-          Icons.edit_square,
-          color: PerfilPage.primaryBlue,
-          size: 30,
+        IconButton(
+          onPressed: onEditar,
+          tooltip: 'Editar perfil',
+          icon: const Icon(
+            Icons.edit_square,
+            color: PerfilPage.primaryBlue,
+            size: 30,
+          ),
         ),
       ],
     );
@@ -179,11 +180,13 @@ class _ProfileHeader extends StatelessWidget {
   final String nome;
   final String email;
   final String? fotoPerfil;
+  final VoidCallback onAlterarFoto;
 
   const _ProfileHeader({
     required this.nome,
     required this.email,
     required this.fotoPerfil,
+    required this.onAlterarFoto,
   });
 
   @override
@@ -223,21 +226,25 @@ class _ProfileHeader extends StatelessWidget {
             Positioned(
               right: -2,
               bottom: 8,
-              child: Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: PerfilPage.primaryBlue,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.white,
-                    width: 5,
+              child: Semantics(
+                button: true,
+                label: 'Alterar foto de perfil',
+                child: GestureDetector(
+                  onTap: onAlterarFoto,
+                  child: Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: PerfilPage.primaryBlue,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 5),
+                    ),
+                    child: const Icon(
+                      Icons.photo_camera,
+                      color: Colors.white,
+                      size: 26,
+                    ),
                   ),
-                ),
-                child: const Icon(
-                  Icons.photo_camera,
-                  color: Colors.white,
-                  size: 26,
                 ),
               ),
             ),
@@ -268,113 +275,6 @@ class _ProfileHeader extends StatelessWidget {
   }
 }
 
-class _StatsCard extends StatelessWidget {
-  const _StatsCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 18,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(
-          color: PerfilPage.borderGray,
-          width: 1.2,
-        ),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: const Row(
-        children: [
-          Expanded(
-            child: _StatItem(
-              icon: Icons.calendar_today_outlined,
-              number: '12',
-              label: 'Aulas agendadas',
-            ),
-          ),
-          _VerticalDivider(),
-          Expanded(
-            child: _StatItem(
-              icon: Icons.access_time,
-              number: '24',
-              label: 'Horas reservadas',
-            ),
-          ),
-          _VerticalDivider(),
-          Expanded(
-            child: _StatItem(
-              icon: Icons.menu_book_outlined,
-              number: '5',
-              label: 'Professores',
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatItem extends StatelessWidget {
-  final IconData icon;
-  final String number;
-  final String label;
-
-  const _StatItem({
-    required this.icon,
-    required this.number,
-    required this.label,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-          icon,
-          color: PerfilPage.primaryBlue,
-          size: 34,
-        ),
-        const SizedBox(height: 18),
-        Text(
-          number,
-          style: const TextStyle(
-            color: PerfilPage.darkBlue,
-            fontSize: 31,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            color: PerfilPage.textGray,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _VerticalDivider extends StatelessWidget {
-  const _VerticalDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 1,
-      height: 94,
-      color: PerfilPage.borderGray,
-    );
-  }
-}
-
 class _ProfileMenuItem extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -394,18 +294,11 @@ class _ProfileMenuItem extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        constraints: const BoxConstraints(
-          minHeight: 98,
-        ),
-        padding: const EdgeInsets.symmetric(
-          vertical: 16,
-        ),
+        constraints: const BoxConstraints(minHeight: 98),
+        padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: const BoxDecoration(
           border: Border(
-            bottom: BorderSide(
-              color: PerfilPage.borderGray,
-              width: 1,
-            ),
+            bottom: BorderSide(color: PerfilPage.borderGray, width: 1),
           ),
         ),
         child: Row(
@@ -417,11 +310,7 @@ class _ProfileMenuItem extends StatelessWidget {
                 color: PerfilPage.lightBlue,
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                color: PerfilPage.primaryBlue,
-                size: 30,
-              ),
+              child: Icon(icon, color: PerfilPage.primaryBlue, size: 30),
             ),
             const SizedBox(width: 22),
             Expanded(

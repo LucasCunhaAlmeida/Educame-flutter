@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/routes/app_router.dart';
+import '../../core/session/session_manager.dart';
 import '../../core/widgets/app_bottom_nav_bar.dart';
 
 class MensagensPage extends StatelessWidget {
@@ -27,7 +30,9 @@ class MensagensPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const _Header(),
+              _Header(
+                fotoPerfil: SessionManager.usuarioAtual?.fotoPerfil,
+              ),
 
               const SizedBox(height: 54),
 
@@ -123,14 +128,18 @@ class MensagensPage extends StatelessWidget {
 }
 
 class _Header extends StatelessWidget {
-  const _Header();
+  final String? fotoPerfil;
+
+  const _Header({required this.fotoPerfil});
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    final caminhoFoto = fotoPerfil?.trim();
+
+    return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Expanded(
+        const Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -154,14 +163,38 @@ class _Header extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(width: 12),
-        CircleAvatar(
-          radius: 31,
-          backgroundColor: MensagensPage.lightBlue,
-          child: Icon(
-            Icons.person_outline,
-            color: MensagensPage.primaryBlue,
-            size: 36,
+        const SizedBox(width: 12),
+        Tooltip(
+          message: 'Abrir perfil',
+          child: Material(
+            color: MensagensPage.lightBlue,
+            shape: const CircleBorder(),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: () => context.go(AppRoutes.perfil),
+              customBorder: const CircleBorder(),
+              child: SizedBox(
+                width: 62,
+                height: 62,
+                child: caminhoFoto == null || caminhoFoto.isEmpty
+                    ? const Icon(
+                        Icons.person_outline,
+                        color: MensagensPage.primaryBlue,
+                        size: 36,
+                      )
+                    : Image.file(
+                        File(caminhoFoto),
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(
+                            Icons.person_outline,
+                            color: MensagensPage.primaryBlue,
+                            size: 36,
+                          );
+                        },
+                      ),
+              ),
+            ),
           ),
         ),
       ],

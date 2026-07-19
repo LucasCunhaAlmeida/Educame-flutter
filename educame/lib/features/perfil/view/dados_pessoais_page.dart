@@ -23,6 +23,9 @@ class DadosPessoaisPage extends StatefulWidget {
 }
 
 class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
+  static const int _limiteFotoBytes = 5 * 1024 * 1024;
+  static const int _dimensaoMaximaFoto = 1600;
+
   static const List<String> _opcoesGenero = [
     'Homem',
     'Mulher',
@@ -357,18 +360,14 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
     }
   }
 
-  void _alterarFotoPerfil() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('A seleção de imagem será implementada posteriormente.'),
-      ),
-    );
-  }
-
   Future<void> _selecionarFotoPerfil() async {
+    final viewModel = context.read<PerfilViewModel>();
+
     try {
       final imagemSelecionada = await _imagePicker.pickImage(
         source: ImageSource.gallery,
+        maxWidth: _dimensaoMaximaFoto.toDouble(),
+        maxHeight: _dimensaoMaximaFoto.toDouble(),
         imageQuality: 85,
       );
 
@@ -376,27 +375,46 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
         return;
       }
 
+      final tamanhoImagem = await imagemSelecionada.length();
+      if (tamanhoImagem > _limiteFotoBytes) {
+        if (!mounted) {
+          return;
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('A imagem deve ter no máximo 5 MB.')),
+        );
+        return;
+      }
+
+      final fotoAnterior = viewModel.usuario?.fotoPerfil;
+
       final diretorioDocumentos = await getApplicationDocumentsDirectory();
       final diretorioFotos = Directory(
-        path.join(diretorioDocumentos.path, 'profile_images'),
+        path.join(diretorioDocumentos.path, 'assets', 'images', 'profiles'),
       );
 
       if (!await diretorioFotos.exists()) {
         await diretorioFotos.create(recursive: true);
       }
 
-      final extensao = path.extension(imagemSelecionada.path);
+      final extensaoSelecionada = path.extension(imagemSelecionada.path);
+      final extensao = extensaoSelecionada.isEmpty
+          ? '.jpg'
+          : extensaoSelecionada.toLowerCase();
       final nomeArquivo =
           'perfil_${DateTime.now().millisecondsSinceEpoch}$extensao';
       final destino = path.join(diretorioFotos.path, nomeArquivo);
 
-      await File(imagemSelecionada.path).copy(destino);
+      final novaFoto = await File(imagemSelecionada.path).copy(destino);
 
       if (!mounted) {
+        await novaFoto.delete();
         return;
       }
 
-      await context.read<PerfilViewModel>().salvarFotoPerfil(destino);
+      await viewModel.salvarFotoPerfil(destino);
+      await _removerFotoAnterior(fotoAnterior, diretorioFotos);
 
       if (!mounted) {
         return;
@@ -413,6 +431,30 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Erro ao alterar foto: $e')));
+    }
+  }
+
+  Future<void> _removerFotoAnterior(
+    String? fotoAnterior,
+    Directory diretorioFotos,
+  ) async {
+    try {
+      if (fotoAnterior == null || fotoAnterior.isEmpty) {
+        return;
+      }
+
+      final diretorioGerenciado = path.absolute(diretorioFotos.path);
+      final arquivoAnterior = path.absolute(fotoAnterior);
+      if (!path.isWithin(diretorioGerenciado, arquivoAnterior)) {
+        return;
+      }
+
+      final foto = File(arquivoAnterior);
+      if (await foto.exists()) {
+        await foto.delete();
+      }
+    } on FileSystemException {
+      // A foto nova já foi salva; falhas na limpeza não anulam a atualização.
     }
   }
 
@@ -544,7 +586,7 @@ class _DadosPessoaisPageState extends State<DadosPessoaisPage> {
                           },
                           icon: const Icon(Icons.edit_outlined),
                           color: DadosPessoaisPage.primaryBlue,
-                          tooltip: 'Alterar genero',
+                          tooltip: 'Alterar gênero',
                         ),
                       ),
                     ],
