@@ -35,6 +35,11 @@ class HomeViewModel extends ChangeNotifier {
     return nome == null || nome.isEmpty ? 'Aluno' : nome;
   }
 
+  String? get fotoPerfilUsuario {
+    final fotoPerfil = SessionManager.usuarioAtual?.fotoPerfil?.trim();
+    return fotoPerfil == null || fotoPerfil.isEmpty ? null : fotoPerfil;
+  }
+
   bool get semDestaques =>
       !_carregando && _erro == null && _professoresDestaque.isEmpty;
 
@@ -61,16 +66,10 @@ class HomeViewModel extends ChangeNotifier {
       final professores = await _professorRepository.listar(limite: 4);
       final proximasAulas = alunoId == null
           ? const <AulaDetalhada>[]
-          : await _aulaRepository.listarProximasDetalhadas(
-              alunoId,
-              limite: 2,
-            );
+          : await _aulaRepository.listarProximasDetalhadas(alunoId, limite: 3);
       final historicoRecente = alunoId == null
           ? const <AulaDetalhada>[]
-          : await _aulaRepository.listarHistoricoDetalhado(
-              alunoId,
-              limite: 2,
-            );
+          : await _aulaRepository.listarHistoricoDetalhado(alunoId, limite: 2);
 
       if (_disposed) {
         return;
