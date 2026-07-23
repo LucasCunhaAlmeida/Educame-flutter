@@ -1,6 +1,6 @@
 # Educame
 
-O **Educame** é uma plataforma feita em Flutter para ajudar alunos a encontrarem professores particulares.
+O **Educame** é uma plataforma feita em Flutter para ajudar alunos a encontrarem professores particulares online ou perto de você.
 
 O aluno poderá buscar professores por disciplina e escolher aulas **online** ou **presenciais**.
 
